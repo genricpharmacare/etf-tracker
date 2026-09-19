@@ -1,32 +1,5 @@
 {
-  "open_positions": [
-    {
-      "id": 5,
-      "ticker": "GOLDBEES.NS",
-      "display_ticker": "GOLDBEES",
-      "entry_date": "2026-09-15",
-      "qty": 125.0,
-      "avg_price": 82.4,
-      "note": "",
-      "cmp": 126.48,
-      "price_source": "live",
-      "price_error": null,
-      "price_date": "2026-09-17",
-      "dma": 127.32850074768066,
-      "pct_dist": -2.2763956423618534,
-      "ema_fast": 124.64923459321429,
-      "ema_slow": 125.5384661350717,
-      "invested": 10300.0,
-      "value": 15810.0,
-      "pnl": 5510.0,
-      "pnl_pct": 53.495145631067956,
-      "days_held": 4,
-      "days_left": 6,
-      "exit_reason": "take_profit",
-      "exit_label": "Target hit",
-      "exit_detail": "+53.50% vs avg buy, target was +6.0%"
-    }
-  ],
+  "open_positions": [],
   "closed_positions": [
     {
       "id": 4,
@@ -40,19 +13,6 @@
     }
   ],
   "alerts": [
-    {
-      "id": 5,
-      "position_id": 5,
-      "display_ticker": "GOLDBEES",
-      "reason": "take_profit",
-      "label": "Target hit",
-      "price": 126.48,
-      "pnl_pct": 53.495145631067956,
-      "detail": "+53.50% vs avg buy, target was +6.0%",
-      "created_at": "2026-09-19T10:56:15",
-      "seen": false,
-      "telegram_ok": true
-    },
     {
       "id": 4,
       "position_id": 4,
@@ -68,15 +28,15 @@
     }
   ],
   "summary": {
-    "invested": 10300.0,
-    "priced_invested": 10300.0,
-    "value": 15810.0,
-    "pnl": 5510.0,
-    "pnl_pct": 53.49514563106796,
-    "open_count": 1,
-    "priced_count": 1,
+    "invested": 0.0,
+    "priced_invested": 0,
+    "value": 0.0,
+    "pnl": 0.0,
+    "pnl_pct": null,
+    "open_count": 0,
+    "priced_count": 0,
     "unpriced_count": 0,
-    "action_count": 1
+    "action_count": 0
   },
   "rules": {
     "take_profit_pct": 6.0,
@@ -87,7 +47,7 @@
     "ema_exit_on": true,
     "mean_reversion_on": false
   },
-  "last_scan": "2026-09-19T10:56:15",
+  "last_scan": "2026-09-19T10:57:27",
   "telegram_configured": true,
-  "server_time": "2026-09-19T10:56:15"
+  "server_time": "2026-09-19T10:57:27"
 }
