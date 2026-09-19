@@ -2,14 +2,10 @@ name: ETF scan
 
 on:
   schedule:
-    # Every hour, 9:30 AM to 3:30 PM IST, Mon-Fri.
-    # IST = UTC+5:30, so 9:30-15:30 IST = 04:00-10:00 UTC.
-    # GitHub's cron scheduler is best-effort and can run a few minutes late,
-    # especially on the free tier — that's normal, not a bug.
-     - cron: '*/5 * * * *'
+    - cron: '*/5 * * * *'
   workflow_dispatch: {}   # lets the dashboard's "Check now" button (or you,
                           # manually, from the Actions tab) trigger a scan
-                          # on demand instead of waiting for the next hour
+                          # on demand instead of waiting for the next slot
 
 permissions:
   contents: write   # needed so the workflow can commit portfolio.json / state.json back
@@ -28,6 +24,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+          cache: 'pip'
 
       - name: Install dependencies
         run: pip install -r requirements.txt
