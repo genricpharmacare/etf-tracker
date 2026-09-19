@@ -1,7 +1,9 @@
 {
   "positions": [],
   "alerts": [],
-  "meta": {},
+  "meta": {
+    "last_scan": "2026-09-19T06:45:27"
+  },
   "next_position_id": 1,
   "next_alert_id": 1
 }
