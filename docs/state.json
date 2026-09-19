@@ -1,32 +1,7 @@
 {
   "open_positions": [],
-  "closed_positions": [
-    {
-      "id": 4,
-      "display_ticker": "MOREALTY",
-      "entry_date": "2026-09-15",
-      "exit_date": "2026-09-19",
-      "exit_price": 70,
-      "exit_reason": "manual",
-      "exit_label": "manual",
-      "pnl_pct": -0.5681818181818262
-    }
-  ],
-  "alerts": [
-    {
-      "id": 4,
-      "position_id": 4,
-      "display_ticker": "MOREALTY",
-      "reason": "take_profit",
-      "label": "Target hit",
-      "price": 85.27,
-      "pnl_pct": 6.057213930348246,
-      "detail": "+6.06% vs avg buy, target was +6.0%",
-      "created_at": "2026-09-19T10:00:48",
-      "seen": true,
-      "telegram_ok": true
-    }
-  ],
+  "closed_positions": [],
+  "alerts": [],
   "summary": {
     "invested": 0.0,
     "priced_invested": 0,
@@ -47,7 +22,7 @@
     "ema_exit_on": true,
     "mean_reversion_on": false
   },
-  "last_scan": "2026-09-19T10:57:27",
+  "last_scan": "2026-09-19T11:29:14",
   "telegram_configured": true,
-  "server_time": "2026-09-19T10:57:27"
+  "server_time": "2026-09-19T11:29:14"
 }
