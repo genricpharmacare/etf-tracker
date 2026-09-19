@@ -1,58 +1,17 @@
 {
-  "open_positions": [
-    {
-      "id": 3,
-      "ticker": "MOREALTY.NS",
-      "display_ticker": "MOREALTY",
-      "entry_date": "2026-09-15",
-      "qty": 125.0,
-      "avg_price": 60.4,
-      "note": "Rank 1 for date 15 Sept 2026.",
-      "cmp": 85.27,
-      "price_source": "live",
-      "price_error": null,
-      "price_date": "2026-09-17",
-      "dma": 88.66649932861328,
-      "pct_dist": -5.432154072804217,
-      "ema_fast": 83.98778426141939,
-      "ema_slow": 86.49563286036617,
-      "invested": 7550.0,
-      "value": 10658.75,
-      "pnl": 3108.75,
-      "pnl_pct": 41.17549668874172,
-      "days_held": 4,
-      "days_left": 6,
-      "exit_reason": "take_profit",
-      "exit_label": "Target hit",
-      "exit_detail": "+41.18% vs avg buy, target was +6.0%"
-    }
-  ],
+  "open_positions": [],
   "closed_positions": [],
-  "alerts": [
-    {
-      "id": 3,
-      "position_id": 3,
-      "display_ticker": "MOREALTY",
-      "reason": "take_profit",
-      "label": "Target hit",
-      "price": 85.27,
-      "pnl_pct": 21.122159090909076,
-      "detail": "+21.12% vs avg buy, target was +6.0%",
-      "created_at": "2026-09-19T09:53:07",
-      "seen": false,
-      "telegram_ok": true
-    }
-  ],
+  "alerts": [],
   "summary": {
-    "invested": 7550.0,
-    "priced_invested": 7550.0,
-    "value": 10658.75,
-    "pnl": 3108.75,
-    "pnl_pct": 41.17549668874172,
-    "open_count": 1,
-    "priced_count": 1,
+    "invested": 0.0,
+    "priced_invested": 0,
+    "value": 0.0,
+    "pnl": 0.0,
+    "pnl_pct": null,
+    "open_count": 0,
+    "priced_count": 0,
     "unpriced_count": 0,
-    "action_count": 1
+    "action_count": 0
   },
   "rules": {
     "take_profit_pct": 6.0,
@@ -63,7 +22,7 @@
     "ema_exit_on": true,
     "mean_reversion_on": false
   },
-  "last_scan": "2026-09-19T09:56:25",
+  "last_scan": "2026-09-19T09:57:46",
   "telegram_configured": true,
-  "server_time": "2026-09-19T09:56:25"
+  "server_time": "2026-09-19T09:57:46"
 }
