@@ -1,9 +1,24 @@
 {
-  "positions": [],
+  "positions": [
+    {
+      "id": 7,
+      "ticker": "MOREALTY.NS",
+      "entry_date": "2026-09-15",
+      "qty": 125,
+      "avg_price": 82.4,
+      "status": "OPEN",
+      "exit_date": null,
+      "exit_price": null,
+      "exit_reason": null,
+      "exit_pnl_pct": null,
+      "note": "Rank 1 in sept 15 2026",
+      "created_at": "2026-09-19T11:40:04.141Z"
+    }
+  ],
   "alerts": [],
   "meta": {
     "last_scan": "2026-09-19T11:38:26"
   },
-  "next_position_id": 7,
+  "next_position_id": 8,
   "next_alert_id": 7
 }
