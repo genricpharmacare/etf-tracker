@@ -1,33 +1,9 @@
 {
   "positions": [
-    {
-      "id": 4,
-      "ticker": "MOREALTY.NS",
-      "entry_date": "2026-09-15",
-      "qty": 125,
-      "avg_price": 70.4,
-      "status": "CLOSED",
-      "exit_date": "2026-09-19",
-      "exit_price": 70,
-      "exit_reason": "manual",
-      "exit_pnl_pct": -0.5681818181818262,
-      "note": "",
-      "created_at": "2026-09-19T10:00:25.680Z"
-    }
+
   ],
   "alerts": [
-    {
-      "id": 4,
-      "position_id": 4,
-      "ticker": "MOREALTY.NS",
-      "reason": "take_profit",
-      "price": 85.27,
-      "pnl_pct": 6.057213930348246,
-      "detail": "+6.06% vs avg buy, target was +6.0%",
-      "created_at": "2026-09-19T10:00:48",
-      "seen": true,
-      "telegram_ok": true
-    }
+ 
   ],
   "meta": {
     "last_scan": "2026-09-19T10:57:27"
