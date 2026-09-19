@@ -13,20 +13,6 @@
       "exit_pnl_pct": -0.5681818181818262,
       "note": "",
       "created_at": "2026-09-19T10:00:25.680Z"
-    },
-    {
-      "id": 5,
-      "ticker": "GOLDBEES.NS",
-      "entry_date": "2026-09-15",
-      "qty": 125,
-      "avg_price": 82.4,
-      "status": "OPEN",
-      "exit_date": null,
-      "exit_price": null,
-      "exit_reason": null,
-      "exit_pnl_pct": null,
-      "note": "",
-      "created_at": "2026-09-19T10:55:49.326Z"
     }
   ],
   "alerts": [
@@ -40,18 +26,6 @@
       "detail": "+6.06% vs avg buy, target was +6.0%",
       "created_at": "2026-09-19T10:00:48",
       "seen": true,
-      "telegram_ok": true
-    },
-    {
-      "id": 5,
-      "position_id": 5,
-      "ticker": "GOLDBEES.NS",
-      "reason": "take_profit",
-      "price": 126.48,
-      "pnl_pct": 53.495145631067956,
-      "detail": "+53.50% vs avg buy, target was +6.0%",
-      "created_at": "2026-09-19T10:56:15",
-      "seen": false,
       "telegram_ok": true
     }
   ],
