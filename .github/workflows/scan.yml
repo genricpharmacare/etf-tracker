@@ -6,7 +6,7 @@ on:
     # IST = UTC+5:30, so 9:30-15:30 IST = 04:00-10:00 UTC.
     # GitHub's cron scheduler is best-effort and can run a few minutes late,
     # especially on the free tier — that's normal, not a bug.
-    - cron: '0 4-10 * * 1-5'
+     - cron: '*/5 * * * *'
   workflow_dispatch: {}   # lets the dashboard's "Check now" button (or you,
                           # manually, from the Actions tab) trigger a scan
                           # on demand instead of waiting for the next hour
