@@ -1,0 +1,47 @@
+name: ETF scan
+
+on:
+  schedule:
+    # Every hour, 9:30 AM to 3:30 PM IST, Mon-Fri.
+    # IST = UTC+5:30, so 9:30-15:30 IST = 04:00-10:00 UTC.
+    # GitHub's cron scheduler is best-effort and can run a few minutes late,
+    # especially on the free tier — that's normal, not a bug.
+    - cron: '0 4-10 * * 1-5'
+  workflow_dispatch: {}   # lets the dashboard's "Check now" button (or you,
+                          # manually, from the Actions tab) trigger a scan
+                          # on demand instead of waiting for the next hour
+
+permissions:
+  contents: write   # needed so the workflow can commit portfolio.json / state.json back
+
+concurrency:
+  group: etf-scan
+  cancel-in-progress: false   # never kill a scan mid-write
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run scan
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python scan.py
+
+      - name: Commit updated data
+        run: |
+          git config user.name "etf-tracker-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add portfolio.json docs/state.json
+          git diff --staged --quiet || git commit -m "scan: $(date -u +'%Y-%m-%d %H:%M UTC')"
+          git push

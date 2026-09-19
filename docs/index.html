@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#151A2D">
+<link rel="manifest" href="manifest.json">
+<title>ETF Ki Dukan</title>
+<style>
+:root{
+  --ink:#151A2D; --surface:#1E2438; --surface-2:#2A3150; --line:#343C5C;
+  --text:#E8EAF2; --muted:#8891AE; --up:#2BB673; --down:#E5484D; --accent:#F2B544; --radius:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--ink);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;font-size:15px;line-height:1.5;padding:0 0 88px;min-height:100vh}
+.num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+.wrap{max-width:640px;margin:0 auto;padding:0 14px}
+header{padding:18px 0 12px;display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+header h1{font-size:17px;font-weight:600;letter-spacing:-0.01em}
+header .meta{font-size:12px;color:var(--muted)}
+.band{border-radius:var(--radius);padding:14px 16px;margin-bottom:14px;border:1px solid var(--line);background:var(--surface)}
+.band.act{border-color:var(--accent);background:linear-gradient(180deg,rgba(242,181,68,.14),rgba(242,181,68,.04))}
+.band h2{font-size:15px;font-weight:600;margin-bottom:2px}
+.band.act h2{color:var(--accent)}
+.band p{font-size:13px;color:var(--muted)}
+.band ul{list-style:none;margin-top:10px;display:flex;flex-direction:column;gap:7px}
+.band li{font-size:13px;display:flex;gap:8px;align-items:baseline;padding-top:7px;border-top:1px solid rgba(242,181,68,.2)}
+.band li b{font-weight:600;flex-shrink:0}
+.band li span{color:var(--muted)}
+.strip{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:16px}
+.strip div{background:var(--surface);padding:11px 12px}
+.strip dt{font-size:11px;color:var(--muted);margin-bottom:3px}
+.strip dd{font-size:16px;font-weight:600;letter-spacing:-0.01em}
+.sec{display:flex;align-items:center;justify-content:space-between;margin:20px 0 10px}
+.sec h3{font-size:13px;font-weight:600;color:var(--muted)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:13px 14px;margin-bottom:10px}
+.card.flag{border-color:var(--accent)}
+.card .top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.card .tkr{font-size:16px;font-weight:600;letter-spacing:-0.01em}
+.card .sub{font-size:12px;color:var(--muted);margin-top:2px}
+.card .pl{text-align:right;flex-shrink:0}
+.card .pl .big{font-size:18px;font-weight:600;letter-spacing:-0.01em}
+.card .pl .small{font-size:12px;color:var(--muted)}
+.up{color:var(--up)} .down{color:var(--down)}
+.prox{display:flex;gap:14px;margin-top:11px;padding-top:10px;border-top:1px solid var(--line)}
+.prox div{flex:1}
+.prox .lbl{font-size:11px;color:var(--muted);margin-bottom:4px}
+.prox .val{font-size:13px;font-weight:600}
+.bar{height:3px;background:var(--surface-2);border-radius:2px;margin-top:5px;overflow:hidden}
+.bar i{display:block;height:100%;border-radius:2px;background:var(--muted)}
+.bar i.near{background:var(--accent)} .bar i.good{background:var(--up)}
+.signal{margin-top:11px;padding:9px 11px;border-radius:7px;background:rgba(242,181,68,.13);border:1px solid rgba(242,181,68,.3);font-size:13px}
+.signal b{color:var(--accent)} .signal span{display:block;color:var(--muted);font-size:12px;margin-top:2px}
+.warn{margin-top:11px;padding:9px 11px;border-radius:7px;background:rgba(229,72,77,.12);border:1px solid rgba(229,72,77,.32);font-size:13px}
+.warn b{color:var(--down)} .warn span{display:block;color:var(--muted);font-size:12px;margin-top:2px}
+.src{font-style:normal;color:var(--muted);font-size:11px}
+.acts{display:flex;gap:8px;margin-top:11px}
+button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--line);background:var(--surface-2);color:var(--text);padding:9px 14px;font-size:14px;-webkit-tap-highlight-color:transparent}
+button:active{opacity:.7}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button.sell{background:var(--up);border-color:var(--up);color:#07281A;font-weight:600;flex:1}
+button.ghost{background:transparent}
+button.danger{color:var(--down);border-color:rgba(229,72,77,.4);background:transparent}
+button.small{padding:6px 11px;font-size:13px}
+button:disabled{opacity:.5;cursor:default}
+.fab{position:fixed;left:0;right:0;bottom:0;padding:12px 14px calc(12px + env(safe-area-inset-bottom));background:linear-gradient(180deg,rgba(21,26,45,0),var(--ink) 34%)}
+.fab button{width:100%;max-width:612px;margin:0 auto;display:block;background:var(--text);color:var(--ink);border-color:var(--text);font-weight:600;padding:13px;font-size:15px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);font-size:14px}
+.row .r-sub{font-size:12px;color:var(--muted);margin-top:1px}
+.sheet{position:fixed;inset:0;background:rgba(10,13,24,.72);display:none;align-items:flex-end;justify-content:center;z-index:50}
+.sheet.on{display:flex}
+.sheet .inner{background:var(--surface);width:100%;max-width:640px;border-radius:16px 16px 0 0;border:1px solid var(--line);border-bottom:none;padding:18px 16px calc(18px + env(safe-area-inset-bottom));max-height:92vh;overflow-y:auto}
+.sheet h3{font-size:16px;font-weight:600;margin-bottom:14px}
+label{display:block;font-size:12px;color:var(--muted);margin:12px 0 5px}
+input{width:100%;font:inherit;font-size:16px;background:var(--ink);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:11px 12px}
+input:focus{outline:2px solid var(--accent);outline-offset:-1px;border-color:var(--accent)}
+.hint{font-size:12px;color:var(--muted);margin-top:6px}
+.hint.ok{color:var(--up)} .hint.bad{color:var(--down)}
+.err{font-size:13px;color:var(--down);margin-top:10px;display:none}
+.err.on{display:block}
+.sheet .acts{margin-top:18px}
+.sheet .acts button{flex:1}
+.sheet .acts button.go{background:var(--accent);border-color:var(--accent);color:#2A1D02;font-weight:600}
+.empty{text-align:center;padding:26px 16px;color:var(--muted);font-size:14px;border:1px dashed var(--line);border-radius:var(--radius)}
+.rules{font-size:12px;color:var(--muted);line-height:1.7;padding:14px 0 0}
+.rules b{color:var(--text);font-weight:600}
+.toast{position:fixed;left:14px;right:14px;bottom:78px;z-index:60;background:var(--surface-2);border:1px solid var(--line);border-radius:9px;padding:12px 14px;font-size:14px;max-width:612px;margin:0 auto;display:none}
+.toast.on{display:block}
+@media (prefers-reduced-motion:no-preference){.toast.on{animation:rise .18s ease-out}@keyframes rise{from{transform:translateY(8px);opacity:0}to{transform:none;opacity:1}}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>ETF Ki Dukan</h1>
+    <div class="meta" id="meta">Loading…</div>
+  </header>
+
+  <div id="band" class="band"><h2>Loading positions</h2></div>
+
+  <dl class="strip">
+    <div><dt>Invested</dt><dd class="num" id="s-inv">—</dd></div>
+    <div><dt>Value</dt><dd class="num" id="s-val">—</dd></div>
+    <div><dt>P&amp;L</dt><dd class="num" id="s-pnl">—</dd></div>
+  </dl>
+
+  <div class="sec">
+    <h3>Open positions</h3>
+    <button class="ghost small" id="btn-refresh">Check now</button>
+  </div>
+  <div id="open"></div>
+
+  <div class="sec">
+    <h3>Closed</h3>
+    <button class="ghost small" id="btn-settings">Setup</button>
+  </div>
+  <div id="closed"></div>
+
+  <div class="rules" id="rules"></div>
+</div>
+
+<div class="fab"><button id="btn-add">Add position</button></div>
+<div class="toast" id="toast"></div>
+
+<!-- Add position -->
+<div class="sheet" id="sheet-add">
+  <div class="inner">
+    <h3>Add position</h3>
+    <label for="f-ticker">Ticker</label>
+    <input id="f-ticker" placeholder="GOLDBEES" autocapitalize="characters" autocomplete="off">
+    <div class="hint">NSE symbol. The .NS suffix is added for you.</div>
+    <label for="f-qty">Quantity</label>
+    <input id="f-qty" type="number" inputmode="decimal" step="any" placeholder="120">
+    <label for="f-price">Average buy price</label>
+    <input id="f-price" type="number" inputmode="decimal" step="any" placeholder="82.40">
+    <div class="hint">Exit rules measure the 6% target against this price.</div>
+    <label for="f-date">Buy date</label>
+    <input id="f-date" type="date">
+    <div class="hint">The 10-day holding limit counts from here.</div>
+    <label for="f-note">Note (optional)</label>
+    <input id="f-note" placeholder="Rank 1, −3.2% from 20DMA">
+    <div class="err" id="add-err"></div>
+    <div class="acts">
+      <button class="ghost" data-close>Cancel</button>
+      <button class="go" id="f-save">Save position</button>
+    </div>
+  </div>
+</div>
+
+<!-- Close position -->
+<div class="sheet" id="sheet-close">
+  <div class="inner">
+    <h3 id="close-title">Close position</h3>
+    <label for="c-price">Sell price</label>
+    <input id="c-price" type="number" inputmode="decimal" step="any">
+    <div class="hint">Enter the price you actually sold at (required here — the browser can't fetch a live Yahoo quote itself).</div>
+    <div class="err" id="close-err"></div>
+    <div class="acts">
+      <button class="ghost" data-close>Cancel</button>
+      <button class="go" id="c-save">Record sell</button>
+    </div>
+  </div>
+</div>
+
+<!-- Setup -->
+<div class="sheet" id="sheet-cfg">
+  <div class="inner">
+    <h3>Setup</h3>
+    <p class="hint" style="margin:0">This page reads/writes directly to your GitHub repo. Paste a token once — it's saved only in this browser, never sent anywhere except api.github.com.</p>
+    <label for="g-owner">GitHub username</label>
+    <input id="g-owner" placeholder="yourusername" autocomplete="off">
+    <label for="g-repo">Repo name</label>
+    <input id="g-repo" placeholder="etf-tracker" autocomplete="off">
+    <label for="g-token">Personal access token</label>
+    <input id="g-token" placeholder="github_pat_…" autocomplete="off">
+    <div class="hint">Fine-grained token, scoped to only this repo, with Contents: Read & write and Actions: Read & write. See the repo's SETUP.md for how to create one.</div>
+    <div class="err" id="cfg-err"></div>
+    <div class="acts">
+      <button class="ghost" id="g-notif">Enable phone alerts</button>
+      <button class="go" id="g-save">Save</button>
+    </div>
+    <p class="hint" style="margin-top:14px">Telegram alerts are configured via GitHub Secrets (TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID) in the repo's Settings → Secrets, not here.</p>
+    <div id="tg-status" class="hint"></div>
+  </div>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const money = n => n == null ? '—' : '₹' + Number(n).toLocaleString('en-IN', {maximumFractionDigits:0});
+const pct = n => n == null ? '—' : (n >= 0 ? '+' : '') + Number(n).toFixed(2) + '%';
+const cls = n => n == null ? '' : (n >= 0 ? 'up' : 'down');
+let STATE = null, closingId = null, notified = new Set();
+
+// ---- GitHub-backed config ----
+function cfg(){
+  return {
+    owner: localStorage.getItem('gh_owner') || '',
+    repo: localStorage.getItem('gh_repo') || '',
+    token: localStorage.getItem('gh_token') || '',
+  };
+}
+function cfgReady(){ const c = cfg(); return c.owner && c.repo && c.token; }
+
+async function ghApi(path, opts){
+  const c = cfg();
+  const r = await fetch('https://api.github.com/repos/' + c.owner + '/' + c.repo + path, Object.assign({
+    headers: {
+      'Authorization': 'Bearer ' + c.token,
+      'Accept': 'application/vnd.github+json',
+      'Content-Type': 'application/json',
+    }
+  }, opts || {}));
+  if (!r.ok){
+    const j = await r.json().catch(() => ({}));
+    throw new Error(j.message || ('GitHub API error ' + r.status));
+  }
+  return r.status === 204 ? null : r.json();
+}
+
+// Fetch + update portfolio.json via the Contents API (base64, with sha for safe overwrite)
+async function readPortfolio(){
+  const res = await ghApi('/contents/portfolio.json');
+  const text = decodeURIComponent(escape(atob(res.content.replace(/\n/g,''))));
+  return {data: JSON.parse(text), sha: res.sha};
+}
+async function writePortfolio(data, sha, message){
+  const text = JSON.stringify(data, null, 2);
+  const b64 = btoa(unescape(encodeURIComponent(text)));
+  await ghApi('/contents/portfolio.json', {
+    method: 'PUT',
+    body: JSON.stringify({message, content: b64, sha}),
+  });
+}
+async function triggerScan(){
+  await ghApi('/actions/workflows/scan.yml/dispatches', {
+    method: 'POST',
+    body: JSON.stringify({ref: 'main'}),
+  });
+}
+
+function toast(msg, ms = 2800){
+  const t = $('#toast'); t.textContent = msg; t.classList.add('on');
+  clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('on'), ms);
+}
+function openSheet(id){ $(id).classList.add('on'); }
+function closeSheets(){ document.querySelectorAll('.sheet').forEach(s => s.classList.remove('on')); }
+document.addEventListener('click', e => {
+  if (e.target.matches('[data-close]') || e.target.classList.contains('sheet')) closeSheets();
+});
+
+function render(s){
+  STATE = s;
+  const sum = s.summary;
+  $('#meta').textContent = s.last_scan ? 'Checked ' + s.last_scan.replace('T',' ').slice(5,16) : 'Not checked yet';
+
+  const flagged = s.open_positions.filter(p => p.exit_reason);
+  const band = $('#band');
+  if (flagged.length){
+    band.className = 'band act';
+    band.innerHTML = '<h2>' + flagged.length + ' to sell</h2><p>Exit rules have fired on these.</p><ul>'
+      + flagged.map(p => '<li><b>' + p.display_ticker + '</b><span>' + p.exit_label + ' · ' + p.exit_detail + '</span></li>').join('')
+      + '</ul>';
+  } else if (s.open_positions.length){
+    band.className = 'band';
+    band.innerHTML = '<h2>Nothing to sell</h2><p>All ' + s.open_positions.length + ' position'
+      + (s.open_positions.length > 1 ? 's are' : ' is') + ' still inside the exit rules.</p>';
+  } else {
+    band.className = 'band';
+    band.innerHTML = '<h2>No positions yet</h2><p>Add the ETF you bought and this will watch it for you.</p>';
+  }
+
+  $('#s-inv').textContent = money(sum.invested);
+  $('#s-val').textContent = sum.priced_count ? money(sum.value) : '—';
+  const pl = $('#s-pnl'); pl.textContent = sum.pnl_pct == null ? '—' : pct(sum.pnl_pct); pl.className = 'num ' + cls(sum.pnl_pct);
+
+  if (sum.unpriced_count){ $('#meta').textContent = sum.unpriced_count + ' without a price'; $('#meta').style.color = 'var(--down)'; }
+  else { $('#meta').style.color = ''; }
+
+  $('#open').innerHTML = s.open_positions.length ? s.open_positions.map(card).join('')
+    : '<div class="empty">Nothing open. Tap Add position when you buy.</div>';
+
+  $('#closed').innerHTML = s.closed_positions.length ? s.closed_positions.map(p =>
+      '<div class="row"><div><div>' + p.display_ticker + '</div><div class="r-sub">' + p.exit_label + ' · ' + (p.exit_date || '') + '</div></div>'
+      + '<div class="num ' + cls(p.pnl_pct) + '" style="font-weight:600">' + pct(p.pnl_pct) + '</div></div>'
+    ).join('') : '<div class="empty">No closed trades yet.</div>';
+
+  const r = s.rules;
+  $('#rules').innerHTML =
+    'Exit rules in force: <b>target +' + r.take_profit_pct + '%</b> on average buy price · '
+    + '<b>' + r.max_holding_days + '-day</b> holding limit · '
+    + (r.ema_exit_on ? '<b>EMA ' + r.ema_fast + '/' + r.ema_slow + '</b> death cross · ' : '')
+    + 'stop-loss ' + (r.stop_loss_pct == null ? 'off' : r.stop_loss_pct + '%')
+    + '. Scanned hourly by GitHub Actions during market hours.'
+    + (s.telegram_configured ? '' : ' Telegram is not set up yet — see Setup.');
+
+  maybeNotify(s.alerts);
+}
+
+function card(p){
+  const tp = p.pnl_pct == null ? 0 : Math.max(0, Math.min(1, p.pnl_pct / STATE.rules.take_profit_pct));
+  const hold = Math.max(0, Math.min(1, p.days_held / STATE.rules.max_holding_days));
+  const srcTag = {live:'live', intraday:'live', close:'last close'}[p.price_source] || '';
+  const priceLine = p.cmp
+    ? p.qty + ' @ ₹' + p.avg_price.toFixed(2) + ' · now ₹' + p.cmp.toFixed(2) + (srcTag ? ' <em class="src">' + srcTag + '</em>' : '')
+    : p.qty + ' @ ₹' + p.avg_price.toFixed(2);
+
+  return '<div class="card' + (p.exit_reason ? ' flag' : '') + '">'
+    + '<div class="top"><div><div class="tkr">' + p.display_ticker + '</div><div class="sub num">' + priceLine + '</div></div>'
+      + '<div class="pl">' + (p.cmp
+          ? '<div class="big num ' + cls(p.pnl_pct) + '">' + pct(p.pnl_pct) + '</div><div class="small num">' + (p.pnl >= 0 ? '+' : '−') + money(Math.abs(p.pnl)).slice(1) + '</div>'
+          : '<div class="big num" style="color:var(--muted)">—</div>') + '</div></div>'
+    + (p.price_error ? '<div class="warn"><b>No price for ' + p.display_ticker + '</b><span>' + p.price_error + '. Check the symbol on Yahoo Finance — P&amp;L stays blank until a price comes through.</span></div>' : '')
+    + '<div class="prox">'
+      + '<div><div class="lbl">To target</div><div class="val num">' + (p.pnl_pct == null ? '—' : (STATE.rules.take_profit_pct - p.pnl_pct).toFixed(2) + '% away') + '</div><div class="bar"><i class="' + (tp >= 1 ? 'good' : '') + '" style="width:' + (tp*100) + '%"></i></div></div>'
+      + '<div><div class="lbl">Days held</div><div class="val num">' + p.days_held + ' of ' + STATE.rules.max_holding_days + '</div><div class="bar"><i class="' + (hold >= 0.8 ? 'near' : '') + '" style="width:' + (hold*100) + '%"></i></div></div>'
+    + '</div>'
+    + (p.exit_reason ? '<div class="signal"><b>Sell — ' + p.exit_label + '</b><span>' + p.exit_detail + '</span></div>' : '')
+    + '<div class="acts"><button class="sell" data-close-pos="' + p.id + '" data-tkr="' + p.display_ticker + '">Record sell</button>'
+      + '<button class="danger small" data-del="' + p.id + '">Delete</button></div></div>';
+}
+
+function maybeNotify(alerts){
+  if (!('Notification' in window) || Notification.permission !== 'granted') return;
+  alerts.filter(a => !a.seen && !notified.has(a.id)).forEach(a => {
+    notified.add(a.id);
+    try{ new Notification('Sell ' + a.display_ticker + ' — ' + a.label, {body: a.detail + '\n' + pct(a.pnl_pct) + ' vs average buy price', tag: 'etf-' + a.id}); }
+    catch(e){}
+  });
+}
+
+// ---- data loop: reads the state.json this same GitHub Pages site publishes ----
+async function load(){
+  try{
+    const url = 'state.json?t=' + Date.now();   // cache-bust
+    const r = await fetch(url);
+    if (!r.ok) throw new Error('state.json not found yet — has the first scan run?');
+    render(await r.json());
+  }catch(e){ $('#meta').textContent = 'Could not load data'; }
+}
+load();
+setInterval(load, 60000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) load(); });
+
+// ---- actions ----
+$('#btn-refresh').onclick = async e => {
+  if (!cfgReady()){ toast('Tap Setup first and save your token'); return; }
+  e.target.disabled = true; e.target.textContent = 'Requesting…';
+  try{ await triggerScan(); toast('Scan requested — refresh this page in ~1 minute'); }
+  catch(err){ toast(err.message); }
+  e.target.disabled = false; e.target.textContent = 'Check now';
+};
+
+$('#btn-add').onclick = () => {
+  if (!cfgReady()){ toast('Tap Setup first and save your token'); return; }
+  $('#f-date').value = new Date().toISOString().slice(0,10);
+  $('#add-err').classList.remove('on');
+  openSheet('#sheet-add');
+};
+
+function normaliseTicker(t){
+  t = (t||'').trim().toUpperCase();
+  if (t.startsWith('NSE:')) t = t.slice(4);
+  if (!t.endsWith('.NS')) t += '.NS';
+  return t;
+}
+
+$('#f-save').onclick = async () => {
+  const err = $('#add-err');
+  err.classList.remove('on');
+  try{
+    const ticker = normaliseTicker($('#f-ticker').value);
+    const qty = parseFloat($('#f-qty').value);
+    const avg_price = parseFloat($('#f-price').value);
+    const entry_date = $('#f-date').value || new Date().toISOString().slice(0,10);
+    if (ticker === '.NS' || !qty || qty <= 0 || !avg_price || avg_price <= 0)
+      throw new Error('Check the ticker, quantity and price.');
+
+    const {data, sha} = await readPortfolio();
+    const pid = data.next_position_id;
+    data.next_position_id += 1;
+    data.positions.push({
+      id: pid, ticker, entry_date, qty, avg_price, status: 'OPEN',
+      exit_date: null, exit_price: null, exit_reason: null, exit_pnl_pct: null,
+      note: ($('#f-note').value || '').slice(0,200),
+      created_at: new Date().toISOString(),
+    });
+    await writePortfolio(data, sha, 'Add position: ' + ticker);
+    ['#f-ticker','#f-qty','#f-price','#f-note'].forEach(s => $(s).value = '');
+    closeSheets(); toast('Saved. Triggering a scan…');
+    await triggerScan().catch(()=>{});
+  }catch(e){ err.textContent = e.message; err.classList.add('on'); }
+};
+
+document.addEventListener('click', e => {
+  const c = e.target.closest('[data-close-pos]');
+  if (c){
+    if (!cfgReady()){ toast('Tap Setup first and save your token'); return; }
+    closingId = c.dataset.closePos;
+    $('#close-title').textContent = 'Sell ' + c.dataset.tkr;
+    $('#c-price').value = ''; $('#close-err').classList.remove('on');
+    openSheet('#sheet-close');
+  }
+  const d = e.target.closest('[data-del]');
+  if (d && confirm('Delete this position and its alerts?')){
+    if (!cfgReady()){ toast('Tap Setup first and save your token'); return; }
+    (async () => {
+      try{
+        const {data, sha} = await readPortfolio();
+        const pid = parseInt(d.dataset.del);
+        data.alerts = data.alerts.filter(a => a.position_id !== pid);
+        data.positions = data.positions.filter(p => p.id !== pid);
+        await writePortfolio(data, sha, 'Delete position ' + pid);
+        toast('Deleted. Triggering a scan…');
+        await triggerScan().catch(()=>{});
+      }catch(e){ toast(e.message); }
+    })();
+  }
+});
+
+$('#c-save').onclick = async () => {
+  const err = $('#close-err');
+  err.classList.remove('on');
+  try{
+    const price = parseFloat($('#c-price').value);
+    if (!price || price <= 0) throw new Error('Enter the price you sold at.');
+    const {data, sha} = await readPortfolio();
+    const pid = parseInt(closingId);
+    const row = data.positions.find(p => p.id === pid);
+    if (!row) throw new Error('Position not found.');
+    const pnl_pct = (price - row.avg_price) / row.avg_price * 100;
+    row.status = 'CLOSED';
+    row.exit_date = new Date().toISOString().slice(0,10);
+    row.exit_price = price;
+    row.exit_reason = 'manual';
+    row.exit_pnl_pct = pnl_pct;
+    data.alerts.forEach(a => { if (a.position_id === pid) a.seen = true; });
+    await writePortfolio(data, sha, 'Close position ' + pid);
+    closeSheets(); toast('Closed at ' + pct(pnl_pct));
+    await triggerScan().catch(()=>{});
+  }catch(e){ err.textContent = e.message; err.classList.add('on'); }
+};
+
+// ---- setup sheet ----
+$('#btn-settings').onclick = () => {
+  const c = cfg();
+  $('#g-owner').value = c.owner; $('#g-repo').value = c.repo;
+  $('#g-token').placeholder = c.token ? 'Saved — type to replace' : 'github_pat_…';
+  $('#g-notif').textContent = (('Notification' in window) && Notification.permission === 'granted') ? 'Phone alerts are on' : 'Enable phone alerts';
+  $('#tg-status').textContent = STATE ? (STATE.telegram_configured ? 'Telegram: configured ✓' : 'Telegram: not configured yet') : '';
+  $('#cfg-err').classList.remove('on');
+  openSheet('#sheet-cfg');
+};
+
+$('#g-notif').onclick = async e => {
+  if (!('Notification' in window)) return toast('This browser has no notifications');
+  const p = await Notification.requestPermission();
+  if (p === 'granted'){ e.target.textContent = 'Phone alerts are on'; toast('Phone alerts on'); }
+  else toast('Permission denied — Telegram will still work');
+};
+
+$('#g-save').onclick = () => {
+  const owner = $('#g-owner').value.trim();
+  const repo = $('#g-repo').value.trim();
+  const token = $('#g-token').value.trim();
+  if (!owner || !repo){ const err=$('#cfg-err'); err.textContent='Enter your GitHub username and repo name.'; err.classList.add('on'); return; }
+  localStorage.setItem('gh_owner', owner);
+  localStorage.setItem('gh_repo', repo);
+  if (token) localStorage.setItem('gh_token', token);
+  $('#g-token').value = '';
+  closeSheets(); toast('Saved'); load();
+};
+
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+</script>
+</body>
+</html>
