@@ -1,17 +1,58 @@
 {
-  "open_positions": [],
+  "open_positions": [
+    {
+      "id": 6,
+      "ticker": "GOLDBEES.NS",
+      "display_ticker": "GOLDBEES",
+      "entry_date": "2026-09-15",
+      "qty": 125.0,
+      "avg_price": 82.8,
+      "note": "",
+      "cmp": 126.48,
+      "price_source": "live",
+      "price_error": null,
+      "price_date": "2026-09-17",
+      "dma": 127.32850074768066,
+      "pct_dist": -2.2763956423618534,
+      "ema_fast": 124.64923459321429,
+      "ema_slow": 125.5384661350717,
+      "invested": 10350.0,
+      "value": 15810.0,
+      "pnl": 5460.0,
+      "pnl_pct": 52.753623188405804,
+      "days_held": 4,
+      "days_left": 6,
+      "exit_reason": "take_profit",
+      "exit_label": "Target hit",
+      "exit_detail": "+52.75% vs avg buy, target was +6.0%"
+    }
+  ],
   "closed_positions": [],
-  "alerts": [],
+  "alerts": [
+    {
+      "id": 6,
+      "position_id": 6,
+      "display_ticker": "GOLDBEES",
+      "reason": "take_profit",
+      "label": "Target hit",
+      "price": 126.48,
+      "pnl_pct": 52.753623188405804,
+      "detail": "+52.75% vs avg buy, target was +6.0%",
+      "created_at": "2026-09-19T11:33:47",
+      "seen": false,
+      "telegram_ok": true
+    }
+  ],
   "summary": {
-    "invested": 0.0,
-    "priced_invested": 0,
-    "value": 0.0,
-    "pnl": 0.0,
-    "pnl_pct": null,
-    "open_count": 0,
-    "priced_count": 0,
+    "invested": 10350.0,
+    "priced_invested": 10350.0,
+    "value": 15810.0,
+    "pnl": 5460.0,
+    "pnl_pct": 52.7536231884058,
+    "open_count": 1,
+    "priced_count": 1,
     "unpriced_count": 0,
-    "action_count": 0
+    "action_count": 1
   },
   "rules": {
     "take_profit_pct": 6.0,
@@ -22,7 +63,7 @@
     "ema_exit_on": true,
     "mean_reversion_on": false
   },
-  "last_scan": "2026-09-19T11:29:14",
+  "last_scan": "2026-09-19T11:33:47",
   "telegram_configured": true,
-  "server_time": "2026-09-19T11:29:14"
+  "server_time": "2026-09-19T11:33:47"
 }
