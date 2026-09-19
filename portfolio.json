@@ -15,10 +15,23 @@
       "created_at": "2026-09-19T07:22:28.925Z"
     }
   ],
-  "alerts": [],
+  "alerts": [
+    {
+      "id": 3,
+      "position_id": 3,
+      "ticker": "MOREALTY.NS",
+      "reason": "take_profit",
+      "price": 85.27,
+      "pnl_pct": 21.122159090909076,
+      "detail": "+21.12% vs avg buy, target was +6.0%",
+      "created_at": "2026-09-19T09:53:07",
+      "seen": false,
+      "telegram_ok": true
+    }
+  ],
   "meta": {
-    "last_scan": "2026-09-19T09:51:26"
+    "last_scan": "2026-09-19T09:53:07"
   },
   "next_position_id": 4,
-  "next_alert_id": 3
+  "next_alert_id": 4
 }
