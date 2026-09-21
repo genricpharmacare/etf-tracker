@@ -252,7 +252,19 @@ document.addEventListener('click', e => {
 function render(s){
   STATE = s;
   const sum = s.summary;
-  $('#meta').textContent = s.last_scan ? 'Checked ' + s.last_scan.replace('T',' ').slice(5,16) : 'Not checked yet';
+function fmtIST(iso){
+  if (!iso) return '';
+  // Agar timezone info nahi hai to UTC maan lo
+  const d = new Date(/[zZ]|[+-]\d\d:?\d\d$/.test(iso) ? iso : iso + 'Z');
+  if (isNaN(d)) return iso;
+  return d.toLocaleString('en-IN', {
+    timeZone: 'Asia/Kolkata',
+    day: '2-digit', month: 'short',
+    hour: '2-digit', minute: '2-digit', hour12: true
+  });
+}
+
+$('#meta').textContent = s.last_scan ? 'Checked ' + fmtIST(s.last_scan) : 'Not checked yet';
 
   const flagged = s.open_positions.filter(p => p.exit_reason);
   const band = $('#band');
