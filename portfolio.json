@@ -13,6 +13,20 @@
       "exit_pnl_pct": 6.007281553398044,
       "note": "Rank 1 in sept 15 2026",
       "created_at": "2026-09-19T11:40:04.141Z"
+    },
+    {
+      "id": 8,
+      "ticker": "TECH.NS",
+      "entry_date": "2026-09-23",
+      "qty": 353,
+      "avg_price": 31.06,
+      "status": "OPEN",
+      "exit_date": null,
+      "exit_price": null,
+      "exit_reason": null,
+      "exit_pnl_pct": null,
+      "note": "Rank 1 on 23 sept 2026",
+      "created_at": "2026-09-23T09:30:57.227Z"
     }
   ],
   "alerts": [
@@ -32,6 +46,6 @@
   "meta": {
     "last_scan": "2026-09-23T09:15:22"
   },
-  "next_position_id": 8,
+  "next_position_id": 9,
   "next_alert_id": 8
 }
