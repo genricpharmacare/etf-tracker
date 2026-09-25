@@ -2,7 +2,7 @@ name: ETF scan
 
 on:
   schedule:
-      - cron: '0,30 4-9 * * 1-5'
+      - cron: '0,15 4-9 * * 1-5'
       - cron: '0 10 * * 1-5'
   workflow_dispatch: {}   # lets the dashboard's "Check now" button (or you,
                           # manually, from the Actions tab) trigger a scan
