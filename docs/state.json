@@ -14,8 +14,8 @@
       "price_date": "2026-09-25",
       "dma": 32.47650012969971,
       "pct_dist": -4.792696402597724,
-      "ema_fast": 31.205094111337935,
-      "ema_slow": 31.83374460883827,
+      "ema_fast": 32.16533356018283,
+      "ema_slow": 32.481939679616886,
       "invested": 10964.18,
       "value": 10914.760026931763,
       "pnl": -49.419973068237596,
@@ -69,12 +69,12 @@
     "take_profit_pct": 6.0,
     "stop_loss_pct": null,
     "max_holding_days": 10,
-    "ema_fast": 4,
-    "ema_slow": 13,
+    "ema_fast": 20,
+    "ema_slow": 50,
     "ema_exit_on": true,
     "mean_reversion_on": false
   },
-  "last_scan": "2026-09-25T10:01:44",
+  "last_scan": "2026-09-25T11:24:57",
   "telegram_configured": true,
-  "server_time": "2026-09-25T10:01:44"
+  "server_time": "2026-09-25T11:24:57"
 }
