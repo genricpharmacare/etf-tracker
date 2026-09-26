@@ -41,6 +41,19 @@
   ],
   "alerts": [
     {
+      "id": 8,
+      "position_id": -1,
+      "display_ticker": "TEST",
+      "reason": "take_profit",
+      "label": "Target hit",
+      "price": 100.0,
+      "pnl_pct": 4.2,
+      "detail": "[TEST - ignore] +4.20% vs avg buy, target was +4.0%",
+      "created_at": "2026-09-26T12:07:23",
+      "seen": false,
+      "telegram_ok": true
+    },
+    {
       "id": 7,
       "position_id": 7,
       "display_ticker": "MOREALTY",
@@ -74,7 +87,7 @@
     "ema_exit_on": true,
     "mean_reversion_on": true
   },
-  "last_scan": "2026-09-26T11:46:35",
+  "last_scan": "2026-09-26T12:07:24",
   "telegram_configured": true,
-  "server_time": "2026-09-26T11:46:35"
+  "server_time": "2026-09-26T12:07:24"
 }
