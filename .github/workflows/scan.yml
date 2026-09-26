@@ -4,9 +4,21 @@ on:
   schedule:
       - cron: '0,15 4-9 * * 1-5'
       - cron: '0 10 * * 1-5'
-  workflow_dispatch: {}   # lets the dashboard's "Check now" button (or you,
-                          # manually, from the Actions tab) trigger a scan
-                          # on demand instead of waiting for the next slot
+  workflow_dispatch:            # lets the dashboard's "Check now" button (or you,
+                                 # manually, from the Actions tab) trigger a scan
+                                 # on demand instead of waiting for the next slot
+    inputs:
+      test_alert:
+        description: 'Send ONE fake test alert (Telegram + dashboard) for this reason, then scan normally. Leave as none for a normal run.'
+        type: choice
+        default: none
+        options:
+          - none
+          - take_profit
+          - stop_loss
+          - mean_reversion
+          - ema_death_cross
+          - max_holding_period
 
 permissions:
   contents: write   # needed so the workflow can commit portfolio.json / state.json back
@@ -34,6 +46,7 @@ jobs:
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TEST_ALERT: ${{ github.event.inputs.test_alert }}
         run: python scan.py
 
       - name: Commit updated data
