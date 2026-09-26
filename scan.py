@@ -40,9 +40,9 @@ import pandas as pd
 # ==============================================================================
 
 DMA_WINDOW = 20
-TAKE_PROFIT_PCT = 6.0
-STOP_LOSS_PCT = None
-EXIT_ON_MEAN_REVERSION = False
+TAKE_PROFIT_PCT = 4.0
+STOP_LOSS_PCT = -10
+EXIT_ON_MEAN_REVERSION = True
 MAX_HOLDING_DAYS = 10
 
 EXIT_ON_EMA_DEATH_CROSS = True
@@ -52,6 +52,37 @@ EMA_SLOW = 50
 USE_LIVE_PRICE = True
 USE_MASTER_CALENDAR = False
 PRICE_HISTORY_PERIOD = "6mo"
+
+# ETF universe used ONLY for the "still rank #1 -> extend holding instead of
+# exiting on max-holding-day" rule below. Kept identical to the backtest's
+# ETF_UNIVERSE so live ranking matches backtest ranking exactly.
+_SYMBOLS = """
+ABSLBANETF ABSLNN50ET ABSLPSE ALPHA ALPHAETF ALPL30IETF AONEGOLD AONENIFTY AONESILVER AONETMMQ50
+AONETOTAL AUTOBEES AUTOIETF BANK10ADD BANK10BETF BANKBEES BANKBETA BANKBETF BANKETF BANKIETF
+BANKNIFTY1 BFSI BSE500IETF BSLGOLDETF BSLNIFTY CEMNTGROWW CHEMICAL COMMOIETF CONS CONSUMBEES
+CONSUMER CONSUMIETF CPSEETF DEFENCE DIVOPPBEES ECAPINSURE EGOLD ELM250 EMETAL EMULTIMQ ENERGY
+ENERGYAXIS ENIFTY EQUAL200 EQUAL50 EQUAL50ADD ESG ESILVER EVIETF EVINDIA FINIETF FLEXIADD FMCGADD
+FMCGIETF GOLD1 GOLDADD GOLDAXIS GOLDBEES GOLDBETA GOLDBND GOLDCASE GOLDETF GOLDIETF GROWWCAPM
+GROWWCHEM GROWWDEFNC GROWWEV GROWWGOLD GROWWHOSPI GROWWLOVOL GROWWMETAL GROWWMOM50 GROWWN200
+GROWWNET GROWWNIFTY GROWWNXT50 GROWWPOWER GROWWRAIL GROWWRLTY GROWWSC250 GROWWSLVR HDFCBSE500
+HDFCGOLD HDFCMID150 HDFCMOMENT HDFCNEXT50 HDFCNIF100 HDFCNIFBAN HDFCNIFIT HDFCNIFTY HDFCNIMEG
+HDFCPSUBK HDFCPVTBAN HDFCSENSEX HDFCSILVER HDFCSML250 HEALTHADD HEALTHCARE HEALTHIETF HEALTHY
+HNGSNGBEES HSBCGOLD ICICIB22 INFRA INFRAIETF INSUREIETF INTERNET IT ITBEES ITETF ITIETF IVZINGOLD
+JUNIORBEES LICMFGOLD LICNMID100 LOWVOL1 LOWVOLIETF MAFANG MAHKTECH MAKEINDIA MASPTOP50 METAL
+METALIETF MID150 MID150BEES MID150CASE MIDCAP MIDCAPADD MIDCAPETF MIDCAPIETF MIDQ50ADD MIDSELIETF
+MIDSMALL MNC MOCAPITAL MODEFENCE MOENERGY MOGOLD MOHEALTH MOM100 MOM30IETF MOMENTUM MOMENTUM30
+MOMENTUM50 MOMETAL MOMIDMTM MOMMIDCAP MOMOMENTUM MON100 MONIFTY500 MONQ50 MOOILGAS MOREALTY
+MOSILVER MOSMALL250 MOTOUR MOVALUE MSCI360 MULTICAP NEXT50 NEXT50BETA NEXT50ETF NEXT50IETF
+NIF100BEES NIF100IETF NIFTY1 NIFTY100EW NIFTYADD NIFTYAXIS NIFTYBEES NIFTYBETA NIFTYCASE NIFTYETF
+NIFTYIETF NIFTYJBLK NIFTYQLITY NV20 NV20BEES NV20IETF OILIETF PHARMABEES PSUBANK PSUBANKADD
+PSUBNKBEES PSUBNKIETF PVTBANIETF PVTBANKADD PVTBKGROWW QGOLDHALF QUAL30IETF QUALITY30 SBIBPB
+SBIMIDMOM SBINEQWETF SBINMID150 SBISILVER SBISMLETF SBIVALETF SELECTIPO SENSEXETF SENSEXIETF
+SETFGOLD SETFNIF50 SETFNIFBK SETFNN50 SHARIABEES SILVER SILVER001 SILVER1 SILVER360 SILVERADD
+SILVERAG SILVERAXIS SILVERBEES SILVERBETA SILVERBND SILVERCASE SILVERIETF SMALL250 SMALLADD
+SMALLCAP SMALLGROWW SMALLIETF SML100CASE SNXT30BEES TATAGOLD TATSILV TECH TNIDETF TOP100CASE
+TOP10ADD TOP15IETF TOP20 TWCGOLDETF VAL30IETF VALUE VALUEAXIS
+"""
+ETF_UNIVERSE = [s + ".NS" for s in _SYMBOLS.split()]
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_PATH = os.path.join(BASE_DIR, "portfolio.json")
@@ -64,6 +95,7 @@ REASON_LABELS = {
     "mean_reversion": "Back at 20 DMA",
     "ema_death_cross": f"EMA {EMA_FAST}/{EMA_SLOW} death cross",
     "max_holding_period": f"Held {MAX_HOLDING_DAYS} days",
+    "extend": f"Still Rank #1 - holding extended",
 }
 
 
@@ -241,10 +273,39 @@ EMPTY_IND = {"close": None, "close_date": None, "dma": None, "pct_dist": None,
 
 
 # ==============================================================================
+# UNIVERSE RANKING (only needed for the max-holding "still rank #1" check)
+# ==============================================================================
+
+def build_universe_ranking():
+    """Fetch the whole ETF universe and rank tickers by %-distance below their
+    20DMA (most negative = most discounted = Rank #1), identical to the
+    backtest's build_daily_rankings(). Returns a sorted list of
+    (ticker, close, pct_dist) tuples, most-discounted first."""
+    hist, errors = fetch_history(ETF_UNIVERSE)
+    if errors:
+        print(f"[universe] {len(errors)}/{len(ETF_UNIVERSE)} tickers failed to fetch")
+
+    rows = []
+    for t, df in hist.items():
+        close = df["Close"].dropna()
+        if len(close) < DMA_WINDOW:
+            continue
+        dma_today = close.rolling(window=DMA_WINDOW, min_periods=DMA_WINDOW).mean().iloc[-1]
+        if pd.isna(dma_today) or dma_today == 0:
+            continue
+        cmp_today = float(close.iloc[-1])
+        pct_dist = (cmp_today - dma_today) / dma_today * 100
+        rows.append((t, cmp_today, float(pct_dist)))
+
+    rows.sort(key=lambda x: x[2])
+    return rows
+
+
+# ==============================================================================
 # EXIT ENGINE
 # ==============================================================================
 
-def check_exit(position, ind, today=None):
+def check_exit(position, ind, today=None, is_rank1=False):
     today = today or date.today()
     cmp_ = ind["close"]
     if cmp_ is None:
@@ -274,8 +335,17 @@ def check_exit(position, ind, today=None):
             detail = f"EMA{EMA_FAST} crossed below EMA{EMA_SLOW} ({ft:.2f} vs {st:.2f})"
 
     if exit_reason is None and days_held >= MAX_HOLDING_DAYS:
-        exit_reason = "max_holding_period"
-        detail = f"held {days_held} days, limit is {MAX_HOLDING_DAYS}"
+        if is_rank1:
+            # Same ETF is still the #1 pick (most below its 20DMA) across the
+            # whole universe - no point selling and immediately re-buying the
+            # same thing. Reset the holding clock instead of exiting, exactly
+            # like the backtest's EXTEND behaviour.
+            exit_reason = "extend"
+            detail = (f"held {days_held} days but still Rank #1 across the "
+                      f"ETF universe - holding period reset")
+        else:
+            exit_reason = "max_holding_period"
+            detail = f"held {days_held} days, limit is {MAX_HOLDING_DAYS}"
 
     return exit_reason, pct_vs_avg, detail
 
@@ -331,6 +401,20 @@ def main():
     priced, unpriced = 0, 0
     new_alerts = 0
 
+    # Only fetch/rank the whole ETF universe when at least one open position
+    # is at (or past) the max-holding boundary today - that's the only place
+    # the rank-#1 check matters, and this avoids an expensive ~250-ticker
+    # fetch on every single run.
+    need_rank_check = any(
+        (today - datetime.fromisoformat(p["entry_date"]).date()).days >= MAX_HOLDING_DAYS
+        for p in open_positions
+    )
+    rank1_ticker = None
+    if need_rank_check:
+        universe_rank = build_universe_ranking()
+        if universe_rank:
+            rank1_ticker = universe_rank[0][0]
+
     for p in open_positions:
         df = hist.get(p["ticker"])
         ind = build_indicators(df["Close"]) if df is not None and len(df) else dict(EMPTY_IND)
@@ -348,7 +432,16 @@ def main():
             price_error = errors.get(p["ticker"]) or q.get("error") or "No price found for this symbol on Yahoo Finance"
 
         ind_for_exit = dict(ind, close=cmp_)
-        reason, pnl_pct, detail = check_exit(p, ind_for_exit, today)
+        is_rank1 = bool(rank1_ticker) and p["ticker"] == rank1_ticker
+        reason, pnl_pct, detail = check_exit(p, ind_for_exit, today, is_rank1)
+
+        # Still Rank #1 at the max-holding boundary - reset the holding clock
+        # instead of exiting, exactly like the backtest's EXTEND behaviour.
+        # No sell, no Telegram alert - just a fresh entry_date.
+        if reason == "extend":
+            p.setdefault("extensions", []).append(today.isoformat())
+            p["entry_date"] = today.isoformat()
+            reason, detail = None, None
 
         cost = float(p["qty"]) * float(p["avg_price"])
         invested += cost
