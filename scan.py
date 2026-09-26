@@ -385,11 +385,55 @@ def alert_message(ticker, reason, price, pnl_pct, detail):
 
 
 # ==============================================================================
+# TEST ALERTS - manually verify Telegram + phone notifications end-to-end
+# without touching any real position. Triggered by the dashboard's "Send
+# test alert" button (workflow_dispatch input TEST_ALERT), never by the
+# scheduled cron runs.
+# ==============================================================================
+
+TEST_ALERT_SAMPLES = {
+    "take_profit": (4.20, "+4.20% vs avg buy, target was +4.0%"),
+    "stop_loss": (-10.30, "-10.30% vs avg buy, stop was -10.0%"),
+    "mean_reversion": (1.10, "price back at/above 20DMA (+1.10%)"),
+    "ema_death_cross": (-2.50, "EMA20 crossed below EMA50 (98.40 vs 99.10)"),
+    "max_holding_period": (-1.80, "held 10 days, limit is 10"),
+}
+
+
+def run_test_alert(s, reason):
+    """Append one fake alert (ticker TEST, position_id -1) and send it
+    through the exact same send_telegram()/alert_message() path a real exit
+    would use. Never touches portfolio.json positions."""
+    if reason not in TEST_ALERT_SAMPLES:
+        print(f"[test-alert] unknown reason '{reason}' - skipping, valid: "
+              f"{list(TEST_ALERT_SAMPLES)}")
+        return
+    pnl_pct, detail = TEST_ALERT_SAMPLES[reason]
+    detail = "[TEST - ignore] " + detail
+    price = 100.0
+    ok, err = send_telegram(alert_message("TEST.NS", reason, price, pnl_pct, detail))
+    alert_id = s["next_alert_id"]
+    s["next_alert_id"] += 1
+    s["alerts"].append({
+        "id": alert_id, "position_id": -1, "ticker": "TEST.NS",
+        "reason": reason, "price": price, "pnl_pct": pnl_pct, "detail": detail,
+        "created_at": datetime.now().isoformat(timespec="seconds"),
+        "seen": False, "telegram_ok": ok,
+    })
+    print(f"[test-alert] reason={reason} telegram_ok={ok} telegram_err={err}")
+
+
+# ==============================================================================
 # MAIN RUN
 # ==============================================================================
 
 def main():
     s = load_store()
+
+    test_reason = os.environ.get("TEST_ALERT", "").strip()
+    if test_reason and test_reason != "none":
+        run_test_alert(s, test_reason)
+
     open_positions = list_open_positions(s)
     tickers = [p["ticker"] for p in open_positions]
 
