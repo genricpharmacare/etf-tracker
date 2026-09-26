@@ -66,15 +66,15 @@
     "action_count": 0
   },
   "rules": {
-    "take_profit_pct": 6.0,
-    "stop_loss_pct": null,
+    "take_profit_pct": 4.0,
+    "stop_loss_pct": -10,
     "max_holding_days": 10,
     "ema_fast": 20,
     "ema_slow": 50,
     "ema_exit_on": true,
-    "mean_reversion_on": false
+    "mean_reversion_on": true
   },
-  "last_scan": "2026-09-26T05:47:22",
+  "last_scan": "2026-09-26T11:46:35",
   "telegram_configured": true,
-  "server_time": "2026-09-26T05:47:22"
+  "server_time": "2026-09-26T11:46:35"
 }
