@@ -125,11 +125,23 @@
       "created_at": "2026-09-29T05:45:25",
       "seen": false,
       "telegram_ok": true
+    },
+    {
+      "id": 15,
+      "position_id": -1,
+      "ticker": "TEST.NS",
+      "reason": "take_profit",
+      "price": 100.0,
+      "pnl_pct": 4.2,
+      "detail": "[TEST - ignore] +4.20% vs avg buy, target was +4.0%",
+      "created_at": "2026-09-29T12:13:44",
+      "seen": false,
+      "telegram_ok": true
     }
   ],
   "meta": {
-    "last_scan": "2026-09-29T10:02:53"
+    "last_scan": "2026-09-29T12:13:45"
   },
   "next_position_id": 9,
-  "next_alert_id": 15
+  "next_alert_id": 16
 }
