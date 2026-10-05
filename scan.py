@@ -63,7 +63,7 @@ EMA_SLOW = 50
 IST = timezone(timedelta(hours=5, minutes=30))
 MARKET_OPEN = dtime(9, 15)
 MARKET_CLOSE = dtime(15, 30)
-CLOSE_RULES_FROM = dtime(15, 15)       # close-based rules are evaluated from this time
+CLOSE_RULES_FROM = dtime(14, 30)       # close-based rules are evaluated from this time
 SCHEDULE_GATE = (dtime(9, 0), dtime(16, 0))   # scheduled runs outside this window just exit
 
 USE_LIVE_PRICE = True
