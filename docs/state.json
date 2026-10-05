@@ -1,40 +1,17 @@
 {
-  "open_positions": [
+  "open_positions": [],
+  "closed_positions": [
     {
       "id": 1,
-      "ticker": "MONQ50.NS",
       "display_ticker": "MONQ50",
       "entry_date": "2026-10-01",
-      "qty": 26.0,
-      "avg_price": 192.4,
-      "note": "rank 1 in 1 oct 2025",
-      "cmp": 197.89999389648438,
-      "price_source": "live",
-      "price_error": null,
-      "price_date": "2026-10-05",
-      "dma": 231.3244987487793,
-      "pct_dist": -14.449185033615597,
-      "ema_fast": 210.7081993497776,
-      "ema_slow": 190.45976066904294,
-      "invested": 5002.400000000001,
-      "value": 5145.399841308594,
-      "pnl": 142.9998413085932,
-      "pnl_pct": 2.8586246863224374,
-      "days_held": 4,
-      "days_left": 6,
-      "tp_price": 200.096,
-      "sl_price": 163.54,
-      "be_price": 194.324,
-      "be_armed": false,
-      "trailing": true,
-      "trail_stop": 200.096,
-      "trail_since": "2026-10-05",
-      "exit_reason": null,
-      "exit_label": null,
-      "exit_detail": null
+      "exit_date": "2026-10-05",
+      "exit_price": 200,
+      "exit_reason": "manual",
+      "exit_label": "manual",
+      "pnl_pct": 3.950103950103947
     }
   ],
-  "closed_positions": [],
   "alerts": [
     {
       "id": 3,
@@ -42,7 +19,7 @@
       "display_ticker": "TEST",
       "reason": "take_profit",
       "label": "Target hit",
-      "price": 100.0,
+      "price": 100,
       "pnl_pct": 4.2,
       "detail": "[TEST - ignore] +4.20% vs avg buy, target was +4.0%",
       "created_at": "2026-10-05T07:32:09",
@@ -55,8 +32,8 @@
       "display_ticker": "TEST",
       "reason": "breakeven_stop",
       "label": "Breakeven stop hit (entry +1%)",
-      "price": 100.0,
-      "pnl_pct": 1.0,
+      "price": 100,
+      "pnl_pct": 1,
       "detail": "[TEST - ignore] +3% was touched earlier; low 100.90 <= breakeven stop 101.00; live price 100.90",
       "created_at": "2026-10-05T07:28:48",
       "seen": false,
@@ -72,18 +49,18 @@
       "pnl_pct": 3.9999999999999987,
       "detail": "target 200.10 touched (high 201.00) and still Rank #1 - do NOT sell. Trailing stop starts next session at peak -2% (never below 200.10).",
       "created_at": "2026-10-05T07:24:29",
-      "seen": false,
+      "seen": true,
       "telegram_ok": true
     }
   ],
   "summary": {
-    "invested": 5002.400000000001,
-    "priced_invested": 5002.400000000001,
-    "value": 5145.399841308594,
-    "pnl": 142.9998413085932,
-    "pnl_pct": 2.858624686322429,
-    "open_count": 1,
-    "priced_count": 1,
+    "invested": 0.0,
+    "priced_invested": 0,
+    "value": 0.0,
+    "pnl": 0.0,
+    "pnl_pct": null,
+    "open_count": 0,
+    "priced_count": 0,
     "unpriced_count": 0,
     "action_count": 0
   },
@@ -103,7 +80,7 @@
     "breakeven_stop_pct": 1,
     "close_rules_from": "15:15"
   },
-  "last_scan": "2026-10-05T07:47:18",
+  "last_scan": "2026-10-05T07:59:22",
   "telegram_configured": true,
-  "server_time": "2026-10-05T07:47:18"
+  "server_time": "2026-10-05T07:59:22"
 }
