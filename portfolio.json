@@ -12,13 +12,29 @@
       "exit_reason": null,
       "exit_pnl_pct": null,
       "note": "rank 1 in 1 oct 2025",
-      "created_at": "2026-10-01T10:01:29.734Z"
+      "created_at": "2026-10-01T10:01:29.734Z",
+      "trade_start": "2026-10-01",
+      "trailing": true,
+      "trail_since": "2026-10-05"
     }
   ],
-  "alerts": [],
+  "alerts": [
+    {
+      "id": 1,
+      "position_id": 1,
+      "ticker": "MONQ50.NS",
+      "reason": "trail_started",
+      "price": 200.096,
+      "pnl_pct": 3.9999999999999987,
+      "detail": "target 200.10 touched (high 201.00) and still Rank #1 - do NOT sell. Trailing stop starts next session at peak -2% (never below 200.10).",
+      "created_at": "2026-10-05T07:24:29",
+      "seen": false,
+      "telegram_ok": true
+    }
+  ],
   "meta": {
-    "last_scan": "2026-10-05T06:36:54"
+    "last_scan": "2026-10-05T07:24:29"
   },
   "next_position_id": 2,
-  "next_alert_id": 1
+  "next_alert_id": 2
 }
