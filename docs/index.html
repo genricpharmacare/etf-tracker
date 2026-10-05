@@ -189,6 +189,9 @@ select:focus{outline:2px solid var(--accent);outline-offset:-1px;border-color:va
     <select id="g-test">
       <option value="take_profit">Target hit</option>
       <option value="stop_loss">Stop-loss hit</option>
+      <option value="trail_stop">Trailing stop hit</option>
+      <option value="breakeven_stop">Breakeven stop hit</option>
+      <option value="trail_rank_lost">Trailing - lost Rank #1</option>
       <option value="mean_reversion">Back at 20 DMA (mean reversion)</option>
       <option value="ema_death_cross">EMA death cross</option>
       <option value="max_holding_period">Max holding period</option>
@@ -316,11 +319,14 @@ $('#meta').textContent = s.last_scan ? 'Checked ' + fmtIST(s.last_scan) : 'Not c
 
   const r = s.rules;
   $('#rules').innerHTML =
-    'Exit rules in force: <b>target +' + r.take_profit_pct + '%</b> on average buy price · '
+    'Exit rules in force: <b>target +' + r.take_profit_pct + '%</b> on average buy price'
+    + (r.trail_enabled ? ' (if still Rank #1: <b>trail ' + r.trail_pct + '%</b> below peak' + (r.trail_lock_tp ? ', never below target' : '') + ')' : '') + ' · '
+    + (r.breakeven_enabled ? '<b>breakeven</b> stop +' + r.breakeven_stop_pct + '% after +' + r.breakeven_trigger_pct + '% · ' : '')
     + '<b>' + r.max_holding_days + '-day</b> holding limit · '
     + (r.ema_exit_on ? '<b>EMA ' + r.ema_fast + '/' + r.ema_slow + '</b> death cross · ' : '')
     + 'stop-loss ' + (r.stop_loss_pct == null ? 'off' : r.stop_loss_pct + '%')
-    + '. Scanned hourly by GitHub Actions during market hours.'
+    + '. Scanned every 15 min, 9:15 AM–3:30 PM IST on trading days. Target/stops are checked on every scan (day high/low); '
+    + '20 DMA, EMA, Rank #1 and holding-day rules are checked from ' + (r.close_rules_from || '15:15') + ' (they use the closing price).'
     + (s.telegram_configured ? '' : ' Telegram is not set up yet — see Setup.');
 
   maybeNotify(s.alerts);
@@ -344,7 +350,9 @@ function card(p){
       + '<div><div class="lbl">To target</div><div class="val num">' + (p.pnl_pct == null ? '—' : (STATE.rules.take_profit_pct - p.pnl_pct).toFixed(2) + '% away') + '</div><div class="bar"><i class="' + (tp >= 1 ? 'good' : '') + '" style="width:' + (tp*100) + '%"></i></div></div>'
       + '<div><div class="lbl">Days held</div><div class="val num">' + p.days_held + ' of ' + STATE.rules.max_holding_days + '</div><div class="bar"><i class="' + (hold >= 0.8 ? 'near' : '') + '" style="width:' + (hold*100) + '%"></i></div></div>'
     + '</div>'
-    + (p.exit_reason ? '<div class="signal"><b>Sell — ' + p.exit_label + '</b><span>' + p.exit_detail + '</span></div>' : '')
+    + (p.exit_reason ? '<div class="signal"><b>Sell — ' + p.exit_label + '</b><span>' + p.exit_detail + '</span></div>'
+        : p.trailing ? '<div class="hint" style="margin:10px 0 0">Trailing since ' + p.trail_since + ' — still Rank #1, do not sell. Stop ₹' + (p.trail_stop == null ? '—' : p.trail_stop.toFixed(2)) + '</div>'
+        : p.be_armed ? '<div class="hint" style="margin:10px 0 0">Breakeven armed — stop ₹' + p.be_price.toFixed(2) + '</div>' : '')
     + '<div class="acts"><button class="sell" data-close-pos="' + p.id + '" data-tkr="' + p.display_ticker + '">Record sell</button>'
       + '<button class="danger small" data-del="' + p.id + '">Delete</button></div></div>';
 }
@@ -353,7 +361,7 @@ function maybeNotify(alerts){
   if (!('Notification' in window) || Notification.permission !== 'granted') return;
   alerts.filter(a => !a.seen && !notified.has(a.id)).forEach(a => {
     notified.add(a.id);
-    try{ new Notification('Sell ' + a.display_ticker + ' — ' + a.label, {body: a.detail + '\n' + pct(a.pnl_pct) + ' vs average buy price', tag: 'etf-' + a.id}); }
+    try{ new Notification((a.reason === 'trail_started' ? 'Hold ' : 'Sell ') + a.display_ticker + ' — ' + a.label, {body: a.detail + '\n' + pct(a.pnl_pct) + ' vs average buy price', tag: 'etf-' + a.id}); }
     catch(e){}
   });
 }

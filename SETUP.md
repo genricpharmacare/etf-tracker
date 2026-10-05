@@ -1,6 +1,6 @@
 # Setup — GitHub Actions + GitHub Pages (100% free, no credit card)
 
-Yeh kaise kaam karta hai (1 line mein): **GitHub Actions** har ghante (market hours mein)
+Yeh kaise kaam karta hai (1 line mein): **GitHub Actions** har 15 minute (9:15 AM – 3:30 PM IST, trading days)
 tumhare positions check karta hai, Yahoo se price fetch karta hai, exit rules chalata hai,
 aur Telegram pe alert bhejta hai — aur result `docs/state.json` mein save karke repo mein commit
 kar deta hai. **GitHub Pages** us `docs/` folder ko ek website ki tarah serve karta hai, jo tum
@@ -71,7 +71,7 @@ Yeh token dashboard ko position add/close/delete karne deta hai, seedha GitHub s
 
 ## Step 6 — Pehla scan chalao
 
-Scheduled scan sirf market hours (9:30 AM – 3:30 PM IST, Mon-Fri) mein khud chalta hai. Abhi turant
+Scheduled scan market hours (9:15 AM – 3:30 PM IST, har 15 min, Mon-Fri; NSE holidays skip) mein khud chalta hai. Abhi turant
 test karne ke liye:
 
 1. Repo mein **Actions tab → "ETF scan" workflow → Run workflow → Run workflow**
@@ -89,7 +89,7 @@ browser bar ke.
 - **Add position**: dashboard se hi, jaise pehle tha
 - **Record sell**: dashboard se, lekin sell price khud daalna padega (browser Yahoo se live price
   nahi maang sakta — CORS block karta hai)
-- **Alerts**: automatic, har ghante market hours mein, Telegram pe
+- **Alerts**: automatic, har 15 min market hours mein, Telegram pe
 
 ## Jaan lo yeh baatein
 
@@ -101,3 +101,11 @@ browser bar ke.
   security chahiye toh bata dena, ek simple password-gate bhi laga sakte hain.
 - **Free tier limits** — GitHub Actions free minutes (2000/month private repo, unlimited public)
   itni hai ki yeh scan kabhi khatam nahi hogi is scale par.
+
+## Schedule & strategy notes (15-min version)
+
+- **Cron UTC me hota hai**: 9:15 IST = 03:45 UTC. `scan.yml` me teen cron lines hain jo 9:15, 9:30 … 15:15, 15:30 IST cover karti hain.
+- **Holidays**: `nse_holidays.json` me NSE ke trading holidays hain (2026 bhara hua). Har saal December me agle saal ki dates add karo, warna holiday par scan chalega (nuksan nahi, bas bekaar run).
+- **Target / trailing / breakeven / stop-loss** har scan me day ke High/Low se check hote hain.
+- **20 DMA, EMA death cross, Rank #1 aur max-holding** backtest me closing price par chalte hain, isliye ye sirf 3:15 PM ke baad wale scans me check hote hain (`CLOSE_RULES_FROM` in scan.py).
+- Repo me ab roz ~26 commits banenge (har scan ka ek). Normal hai.

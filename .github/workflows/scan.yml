@@ -2,8 +2,11 @@ name: ETF scan
 
 on:
   schedule:
-      - cron: '0,15 4-9 * * 1-5'
-      - cron: '0 10 * * 1-5'
+    # Every 15 minutes, 9:15 AM - 3:30 PM IST, Mon-Fri. GitHub cron is UTC (IST = UTC+5:30):
+    - cron: '45 3 * * 1-5'            # 09:15 IST
+    - cron: '0,15,30,45 4-9 * * 1-5'  # 09:30 ... 15:15 IST
+    - cron: '0 10 * * 1-5'            # 15:30 IST
+    # NSE holidays are skipped inside scan.py (see nse_holidays.json).
   workflow_dispatch:            # lets the dashboard's "Check now" button (or you,
                                  # manually, from the Actions tab) trigger a scan
                                  # on demand instead of waiting for the next slot
@@ -16,6 +19,9 @@ on:
           - none
           - take_profit
           - stop_loss
+          - trail_stop
+          - breakeven_stop
+          - trail_rank_lost
           - mean_reversion
           - ema_death_cross
           - max_holding_period
@@ -42,17 +48,24 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Run scan
+      - name: Scan and commit
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           TEST_ALERT: ${{ github.event.inputs.test_alert }}
-        run: python scan.py
-
-      - name: Commit updated data
         run: |
           git config user.name "etf-tracker-bot"
           git config user.email "actions@users.noreply.github.com"
-          git add portfolio.json docs/state.json
-          git diff --staged --quiet || git commit -m "scan: $(date -u +'%Y-%m-%d %H:%M UTC')"
-          git push
+          # Scans now run every 15 min, so the dashboard may have committed portfolio.json
+          # in the meantime. If the push is rejected: re-sync with the repo and scan again.
+          for attempt in 1 2 3; do
+            python scan.py
+            git add portfolio.json docs/state.json
+            git diff --staged --quiet || git commit -m "scan: $(date -u +'%Y-%m-%d %H:%M UTC')"
+            if git push; then exit 0; fi
+            echo "push rejected (attempt $attempt) - re-syncing and re-scanning"
+            git fetch origin main
+            git reset --hard origin/main
+            export TEST_ALERT=none
+          done
+          exit 1

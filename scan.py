@@ -2,36 +2,34 @@
 ==============================================================================
 ETF Ki Dukan - Portfolio Tracker  (GitHub Actions edition)
 ==============================================================================
-This is the same tracker, minus Termux and Flask. Instead of a phone-hosted
-server it is designed to be run ONCE PER INVOCATION by a GitHub Actions
-scheduled workflow (see .github/workflows/scan.yml):
+Runs ONCE PER INVOCATION from a GitHub Actions schedule (see
+.github/workflows/scan.yml): every 15 minutes, 9:15 AM - 3:30 PM IST, on NSE
+trading days.
 
   1. Reads positions from portfolio.json (in the repo).
-  2. Fetches prices, runs the exit engine (identical logic to the original
-     Termux version), sends any new Telegram alerts.
-  3. Writes the updated portfolio.json AND docs/state.json - the second file
-     is what the static dashboard (hosted on GitHub Pages, in docs/) reads
-     to render the UI. The workflow then commits both files back to the repo.
+  2. Fetches prices, runs the exit engine, sends new Telegram alerts.
+  3. Writes portfolio.json AND docs/state.json (dashboard reads the latter).
 
-Telegram credentials come from environment variables (GitHub Secrets), not
-from a config.json on a phone:
-    TELEGRAM_BOT_TOKEN
-    TELEGRAM_CHAT_ID
-
-EXIT ENGINE FIDELITY - unchanged from the original:
-    if   TAKE_PROFIT_PCT is not None and pct_vs_avg >= TAKE_PROFIT_PCT
-    elif STOP_LOSS_PCT   is not None and pct_vs_avg <= STOP_LOSS_PCT
-    elif EXIT_ON_MEAN_REVERSION      and pct_dist_today >= 0
-    elif EXIT_ON_EMA_DEATH_CROSS     and (fast_prev >= slow_prev and fast_today < slow_today)
-    if exit_reason is None and (today - entry_date).days >= MAX_HOLDING_DAYS
+STRATEGY = identical to backtest_nse.py (latest version):
+    Intraday-touch rules (checked EVERY run, using today's High/Low so far):
+      a. trailing active  -> stop = max(peak*(1-TRAIL_PCT%), TP price); low <= stop => trail_stop
+      b. TP touched       -> still Rank #1 ? start trailing (no sell) : take_profit
+      c. breakeven armed (+3% seen on an earlier day) and low <= entry+1% => breakeven_stop
+      d. low <= entry -15%                                          => stop_loss
+    Close-based rules (checked only from CLOSE_RULES_FROM, default 3:15 PM IST,
+    because the backtest uses the daily CLOSE for these):
+      e. price back at/above 20DMA                                  => mean_reversion
+      f. EMA20 crosses below EMA50                                  => ema_death_cross
+      g. trailing + no longer Rank #1                               => trail_rank_lost
+      h. held >= MAX_HOLDING_DAYS: still Rank #1 ? extend : max_holding_period
 ==============================================================================
 """
 
 import os
 import json
 import shutil
-import time
-from datetime import datetime, date
+from datetime import datetime, date, timedelta, timezone
+from datetime import time as dtime
 
 import pandas as pd
 
@@ -41,13 +39,32 @@ import pandas as pd
 
 DMA_WINDOW = 20
 TAKE_PROFIT_PCT = 4.0
-STOP_LOSS_PCT = -10
+STOP_LOSS_PCT = -15
 EXIT_ON_MEAN_REVERSION = True
 MAX_HOLDING_DAYS = 10
+
+# ---- Trailing profit (when TP is touched and the ETF is still Rank #1) ----
+TRAIL_ENABLED = True
+TRAIL_PCT = 2.0       # exit when price falls this % below the peak
+TRAIL_LOCK_TP = True  # stop never goes below the take-profit price
+
+# ---- Breakeven stop ----
+# Once +BREAKEVEN_TRIGGER_PCT% has been touched on an EARLIER day, the stop moves to
+# entry +BREAKEVEN_STOP_PCT% (active from the next session, same as the backtest).
+BREAKEVEN_ENABLED = True
+BREAKEVEN_TRIGGER_PCT = 3
+BREAKEVEN_STOP_PCT = 1
 
 EXIT_ON_EMA_DEATH_CROSS = True
 EMA_FAST = 20
 EMA_SLOW = 50
+
+# ---- Schedule / market clock (all IST) ----
+IST = timezone(timedelta(hours=5, minutes=30))
+MARKET_OPEN = dtime(9, 15)
+MARKET_CLOSE = dtime(15, 30)
+CLOSE_RULES_FROM = dtime(15, 15)       # close-based rules are evaluated from this time
+SCHEDULE_GATE = (dtime(9, 0), dtime(16, 0))   # scheduled runs outside this window just exit
 
 USE_LIVE_PRICE = True
 USE_MASTER_CALENDAR = False
@@ -88,6 +105,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_PATH = os.path.join(BASE_DIR, "portfolio.json")
 STATE_PATH = os.path.join(BASE_DIR, "docs", "state.json")
 ETF_UNIVERSE_PATH = os.path.join(BASE_DIR, "etf_universe.txt")
+HOLIDAYS_PATH = os.path.join(BASE_DIR, "nse_holidays.json")
 
 REASON_LABELS = {
     "take_profit": "Target hit",
@@ -96,7 +114,36 @@ REASON_LABELS = {
     "ema_death_cross": f"EMA {EMA_FAST}/{EMA_SLOW} death cross",
     "max_holding_period": f"Held {MAX_HOLDING_DAYS} days",
     "extend": f"Still Rank #1 - holding extended",
+    "trail_started": "Target hit, still Rank #1 - trailing started (do NOT sell)",
+    "trail_stop": f"Trailing stop hit ({TRAIL_PCT:g}% below peak)",
+    "trail_rank_lost": "Trailing - no longer Rank #1",
+    "breakeven_stop": f"Breakeven stop hit (entry +{BREAKEVEN_STOP_PCT:g}%)",
 }
+
+
+# ==============================================================================
+# MARKET CLOCK
+# ==============================================================================
+
+def now_ist():
+    """Current IST time. SCAN_NOW_IST=2026-10-05T15:20:00 overrides it (testing only)."""
+    o = os.environ.get("SCAN_NOW_IST", "").strip()
+    if o:
+        return datetime.fromisoformat(o).replace(tzinfo=IST)
+    return datetime.now(IST)
+
+
+def load_holidays():
+    try:
+        with open(HOLIDAYS_PATH, encoding="utf-8") as f:
+            return {date.fromisoformat(x) for x in json.load(f).get("holidays", [])}
+    except Exception as e:
+        print(f"[clock] could not read nse_holidays.json ({e}) - holidays not checked")
+        return set()
+
+
+def is_trading_day(d, holidays):
+    return d.weekday() < 5 and d not in holidays
 
 
 # ==============================================================================
@@ -192,7 +239,28 @@ def fetch_live_quotes(tickers):
     return out
 
 
+def _slice_ticker(raw, t):
+    """One ticker's High/Low/Close out of a yf.download() frame (handles both
+    MultiIndex layouts yfinance has used)."""
+    cols = raw.columns
+    if isinstance(cols, pd.MultiIndex):
+        if t in cols.get_level_values(0):
+            sub = raw[t]
+        elif t in cols.get_level_values(1):
+            sub = raw.xs(t, axis=1, level=1)
+        else:
+            return None
+    else:
+        sub = raw
+    keep = [c for c in ("High", "Low", "Close") if c in sub.columns]
+    if "Close" not in keep:
+        return None
+    return sub[keep].copy()
+
+
 def fetch_history(tickers):
+    """Daily bars (High/Low/Close). The last row is TODAY's partial bar while the
+    market is open, so its High/Low are the day's range so far."""
     import yfinance as yf
     tickers = list(dict.fromkeys(tickers))
     out, errors = {}, {}
@@ -212,27 +280,29 @@ def fetch_history(tickers):
         try:
             if raw is None or len(raw) == 0:
                 df = None
-            elif len(tickers) == 1:
-                df = raw[["Close"]].copy()
             else:
-                df = raw[t][["Close"]].copy()
+                df = _slice_ticker(raw, t)
         except Exception as e:
             err = f"{type(e).__name__}: {str(e)[:150]}"
             df = None
 
-        if df is None or not len(df.dropna()):
+        if df is None or not len(df.dropna(subset=["Close"])):
             try:
                 single = yf.Ticker(t).history(period=PRICE_HISTORY_PERIOD)
                 if single is not None and len(single):
-                    df = single[["Close"]].copy()
+                    df = single[[c for c in ("High", "Low", "Close") if c in single.columns]].copy()
                     err = None
             except Exception as e:
                 err = err or f"{type(e).__name__}: {str(e)[:150]}"
 
         if df is not None:
-            df = df.dropna()
+            df = df.dropna(subset=["Close"])
             if len(df):
-                df.index = pd.to_datetime(df.index)
+                idx = pd.to_datetime(df.index)
+                if getattr(idx, "tz", None) is not None:
+                    idx = idx.tz_localize(None)
+                df.index = idx.normalize()
+                df = df[~df.index.duplicated(keep="last")]
                 out[t] = df
                 continue
 
@@ -305,49 +375,138 @@ def build_universe_ranking():
 # EXIT ENGINE
 # ==============================================================================
 
-def check_exit(position, ind, today=None, is_rank1=False):
-    today = today or date.today()
+def _dates(df):
+    return pd.Series(df.index.date, index=df.index)
+
+
+def check_exit(position, ind, bars, session, today, close_window, is_rank1_fn):
+    """Same decision order as backtest_nse.py run_backtest().
+
+    ind          indicators built from closes with the live price spliced in
+    bars         daily High/Low/Close frame (last row = today's partial bar)
+    session      the trading day being evaluated (today while the market is open)
+    close_window True => close-based rules are evaluated too
+    is_rank1_fn  lazy callable -> is this ETF Rank #1 across the universe right now
+    """
     cmp_ = ind["close"]
+    res = {"reason": None, "pnl_pct": None, "live_pnl_pct": None, "detail": "",
+           "price": cmp_, "updates": {}, "notice": None,
+           "info": {"tp_price": None, "sl_price": None, "be_price": None, "be_armed": False,
+                    "trailing": bool(position.get("trailing")), "trail_stop": None,
+                    "trail_since": position.get("trail_since")}}
     if cmp_ is None:
-        return None, None, "no price"
+        res["detail"] = "no price"
+        return res
 
     avg = float(position["avg_price"])
-    pct_vs_avg = (cmp_ - avg) / avg * 100
-    entry = datetime.fromisoformat(position["entry_date"]).date()
+    live_pct = (cmp_ - avg) / avg * 100
+    res["live_pnl_pct"] = res["pnl_pct"] = live_pct
+    entry = date.fromisoformat(str(position["entry_date"])[:10])
     days_held = (today - entry).days
+    start = date.fromisoformat(str(position.get("trade_start") or position["entry_date"])[:10])
 
-    exit_reason, detail = None, ""
+    has_hl = bars is not None and "High" in bars.columns and "Low" in bars.columns
+    hi_col, lo_col = ("High", "Low") if has_hl else ("Close", "Close")
+    prior = cur = None
+    if bars is not None and len(bars):
+        d = _dates(bars)
+        prior, cur = bars[d < session], bars[d == session]
 
-    if TAKE_PROFIT_PCT is not None and pct_vs_avg >= TAKE_PROFIT_PCT:
-        exit_reason = "take_profit"
-        detail = f"{pct_vs_avg:+.2f}% vs avg buy, target was +{TAKE_PROFIT_PCT:.1f}%"
-    elif STOP_LOSS_PCT is not None and pct_vs_avg <= STOP_LOSS_PCT:
-        exit_reason = "stop_loss"
-        detail = f"{pct_vs_avg:+.2f}% vs avg buy, stop was {STOP_LOSS_PCT:.1f}%"
-    elif (EXIT_ON_MEAN_REVERSION and ind["pct_dist"] is not None and ind["pct_dist"] >= 0):
-        exit_reason = "mean_reversion"
+    # today's range so far (daily bar + live quote)
+    day_high = day_low = cmp_
+    if cur is not None and len(cur):
+        h, l = cur[hi_col].iloc[-1], cur[lo_col].iloc[-1]
+        if pd.notna(h):
+            day_high = max(day_high, float(h))
+        if pd.notna(l):
+            day_low = min(day_low, float(l))
+
+    tp_price = avg * (1 + TAKE_PROFIT_PCT / 100) if TAKE_PROFIT_PCT is not None else None
+    sl_price = avg * (1 + STOP_LOSS_PCT / 100) if STOP_LOSS_PCT is not None else None
+    be_price = avg * (1 + BREAKEVEN_STOP_PCT / 100) if BREAKEVEN_ENABLED else None
+
+    # breakeven armed = +trigger% touched on an EARLIER day (after the original entry day)
+    be_armed = False
+    if BREAKEVEN_ENABLED and prior is not None and len(prior):
+        after = prior[_dates(prior) > start]
+        if len(after):
+            hmax = after[hi_col].max()
+            be_armed = bool(pd.notna(hmax) and hmax >= avg * (1 + BREAKEVEN_TRIGGER_PCT / 100))
+
+    info = res["info"]
+    info.update(tp_price=tp_price, sl_price=sl_price, be_price=be_price, be_armed=be_armed)
+
+    tp_touched = tp_price is not None and day_high >= tp_price
+    reason, price, detail = None, cmp_, ""
+
+    if position.get("trailing"):
+        t_since = date.fromisoformat(str(position.get("trail_since") or session.isoformat())[:10])
+        peak = None
+        if prior is not None and len(prior):
+            seg = prior[_dates(prior) >= t_since]
+            if len(seg):
+                peak = seg[hi_col].max()
+        if peak is None or pd.isna(peak):
+            peak = tp_price if tp_price is not None else avg
+        peak = max(float(peak), day_high) if t_since >= session else float(peak)
+        stop_price = peak * (1 - TRAIL_PCT / 100)
+        if TRAIL_LOCK_TP and tp_price is not None:
+            stop_price = max(stop_price, tp_price)
+        info["trail_stop"] = stop_price
+        started_today = t_since >= session      # backtest: stop checks begin the NEXT session
+        if not started_today and day_low <= stop_price:
+            reason, price = "trail_stop", stop_price
+            detail = (f"low {day_low:.2f} <= trailing stop {stop_price:.2f} "
+                      f"(peak {peak:.2f}, -{TRAIL_PCT:g}%); live price {cmp_:.2f}")
+        elif not started_today and close_window and not is_rank1_fn():
+            reason, price = "trail_rank_lost", cmp_
+            detail = "ETF is no longer Rank #1 while trailing - exit near close"
+    elif tp_touched:
+        if TRAIL_ENABLED and is_rank1_fn():
+            res["updates"] = {"trailing": True, "trail_since": session.isoformat()}
+            info["trailing"], info["trail_since"] = True, session.isoformat()
+            ts = day_high * (1 - TRAIL_PCT / 100)
+            if TRAIL_LOCK_TP:
+                ts = max(ts, tp_price)
+            info["trail_stop"] = ts
+            res["notice"] = ("trail_started",
+                             f"target {tp_price:.2f} touched (high {day_high:.2f}) and still Rank #1 - "
+                             f"do NOT sell. Trailing stop starts next session at peak -{TRAIL_PCT:g}% "
+                             f"(never below {tp_price:.2f}).", tp_price)
+        else:
+            reason, price = "take_profit", tp_price
+            detail = (f"target {tp_price:.2f} (+{TAKE_PROFIT_PCT:g}%) touched, day high {day_high:.2f}; "
+                      f"live price {cmp_:.2f}")
+    elif be_armed and day_low <= be_price:
+        reason, price = "breakeven_stop", be_price
+        detail = (f"+{BREAKEVEN_TRIGGER_PCT:g}% was touched earlier; low {day_low:.2f} <= "
+                  f"breakeven stop {be_price:.2f}; live price {cmp_:.2f}")
+    elif sl_price is not None and day_low <= sl_price:
+        reason, price = "stop_loss", sl_price
+        detail = f"low {day_low:.2f} <= stop {sl_price:.2f} ({STOP_LOSS_PCT:g}%); live price {cmp_:.2f}"
+    elif close_window and EXIT_ON_MEAN_REVERSION and ind["pct_dist"] is not None and ind["pct_dist"] >= 0:
+        reason, price = "mean_reversion", cmp_
         detail = f"price back at/above 20DMA ({ind['pct_dist']:+.2f}%)"
-    elif EXIT_ON_EMA_DEATH_CROSS:
+    elif close_window and EXIT_ON_EMA_DEATH_CROSS:
         ft, st = ind["ema_fast_today"], ind["ema_slow_today"]
         fp, sp = ind["ema_fast_prev"], ind["ema_slow_prev"]
         if None not in (ft, st, fp, sp) and fp >= sp and ft < st:
-            exit_reason = "ema_death_cross"
+            reason, price = "ema_death_cross", cmp_
             detail = f"EMA{EMA_FAST} crossed below EMA{EMA_SLOW} ({ft:.2f} vs {st:.2f})"
 
-    if exit_reason is None and days_held >= MAX_HOLDING_DAYS:
-        if is_rank1:
-            # Same ETF is still the #1 pick (most below its 20DMA) across the
-            # whole universe - no point selling and immediately re-buying the
-            # same thing. Reset the holding clock instead of exiting, exactly
-            # like the backtest's EXTEND behaviour.
-            exit_reason = "extend"
-            detail = (f"held {days_held} days but still Rank #1 across the "
-                      f"ETF universe - holding period reset")
+    if reason is None and close_window and days_held >= MAX_HOLDING_DAYS:
+        if is_rank1_fn():
+            reason, price = "extend", cmp_
+            detail = (f"held {days_held} days but still Rank #1 across the ETF universe - "
+                      f"holding period reset")
         else:
-            exit_reason = "max_holding_period"
+            reason, price = "max_holding_period", cmp_
             detail = f"held {days_held} days, limit is {MAX_HOLDING_DAYS}"
 
-    return exit_reason, pct_vs_avg, detail
+    res.update(reason=reason, price=price, detail=detail)
+    if reason and reason != "extend":
+        res["pnl_pct"] = (price - avg) / avg * 100
+    return res
 
 
 # ==============================================================================
@@ -373,10 +532,10 @@ def send_telegram(text):
         return False, str(e)
 
 
-def alert_message(ticker, reason, price, pnl_pct, detail):
+def alert_message(ticker, reason, price, pnl_pct, detail, kind="SELL"):
     label = REASON_LABELS.get(reason, reason)
     return (
-        f"<b>SELL — {ticker.replace('.NS', '')}</b>\n"
+        f"<b>{kind} — {ticker.replace('.NS', '')}</b>\n"
         f"{label}\n\n"
         f"Price: ₹{price:,.2f}\n"
         f"P&amp;L vs avg buy: {pnl_pct:+.2f}%\n"
@@ -393,7 +552,10 @@ def alert_message(ticker, reason, price, pnl_pct, detail):
 
 TEST_ALERT_SAMPLES = {
     "take_profit": (4.20, "+4.20% vs avg buy, target was +4.0%"),
-    "stop_loss": (-10.30, "-10.30% vs avg buy, stop was -10.0%"),
+    "stop_loss": (-15.30, "low 84.70 <= stop 85.00 (-15%); live price 84.70"),
+    "trail_stop": (4.10, "low 104.10 <= trailing stop 104.20 (peak 106.30, -2%); live price 104.10"),
+    "breakeven_stop": (1.00, "+3% was touched earlier; low 100.90 <= breakeven stop 101.00; live price 100.90"),
+    "trail_rank_lost": (5.20, "ETF is no longer Rank #1 while trailing - exit near close"),
     "mean_reversion": (1.10, "price back at/above 20DMA (+1.10%)"),
     "ema_death_cross": (-2.50, "EMA20 crossed below EMA50 (98.40 vs 99.10)"),
     "max_holding_period": (-1.80, "held 10 days, limit is 10"),
@@ -427,7 +589,42 @@ def run_test_alert(s, reason):
 # MAIN RUN
 # ==============================================================================
 
+def raise_alert(s, p, reason, price, pnl_pct, detail, kind="SELL"):
+    """One Telegram alert + dashboard alert per (position, reason)."""
+    if any(a["position_id"] == p["id"] and a["reason"] == reason for a in s["alerts"]):
+        return False
+    alert_id = s["next_alert_id"]
+    s["next_alert_id"] += 1
+    ok, _ = send_telegram(alert_message(p["ticker"], reason, price, pnl_pct, detail, kind))
+    s["alerts"].append({
+        "id": alert_id, "position_id": p["id"], "ticker": p["ticker"],
+        "reason": reason, "price": price, "pnl_pct": pnl_pct, "detail": detail,
+        "created_at": datetime.now().isoformat(timespec="seconds"),
+        "seen": False, "telegram_ok": ok,
+    })
+    return True
+
+
 def main():
+    now = now_ist()
+    today = now.date()
+    holidays = load_holidays()
+    trading_today = is_trading_day(today, holidays)
+    scheduled = os.environ.get("GITHUB_EVENT_NAME", "") == "schedule"
+
+    # Scheduled runs only act inside the market window on trading days
+    # (cron cannot know NSE holidays). Manual runs ("Check now") always scan.
+    if scheduled and not (trading_today and SCHEDULE_GATE[0] <= now.time() <= SCHEDULE_GATE[1]):
+        print(f"[scan] {now:%Y-%m-%d %H:%M} IST - market closed / holiday, nothing to do.")
+        return
+
+    # Close-based rules (20DMA, EMA, rank, holding days) use the daily CLOSE in the backtest,
+    # so they are evaluated from CLOSE_RULES_FROM (or when the market is not trading).
+    trading_started = trading_today and now.time() >= MARKET_OPEN
+    close_window = (not trading_started) or now.time() >= CLOSE_RULES_FROM
+    print(f"[scan] {now:%Y-%m-%d %H:%M} IST  trading_day={trading_today}  "
+          f"close_rules={'ON' if close_window else 'off (before ' + CLOSE_RULES_FROM.strftime('%H:%M') + ')'}")
+
     s = load_store()
 
     test_reason = os.environ.get("TEST_ALERT", "").strip()
@@ -440,32 +637,45 @@ def main():
     hist, errors = fetch_history(tickers)
     live = fetch_live_quotes(tickers) if (tickers and USE_LIVE_PRICE) else {}
 
-    today = date.today()
+    # Universe ranking is expensive (~250 tickers) - fetched lazily, only when a rule needs it
+    rank_cache = {}
+
+    def is_rank1_for(ticker):
+        if "rows" not in rank_cache:
+            rank_cache["rows"] = build_universe_ranking()
+        rows = rank_cache["rows"]
+        return bool(rows) and rows[0][0] == ticker
+
     open_rows, invested, current_value = [], 0.0, 0.0
     priced, unpriced = 0, 0
     new_alerts = 0
 
-    # Only fetch/rank the whole ETF universe when at least one open position
-    # is at (or past) the max-holding boundary today - that's the only place
-    # the rank-#1 check matters, and this avoids an expensive ~250-ticker
-    # fetch on every single run.
-    need_rank_check = any(
-        (today - datetime.fromisoformat(p["entry_date"]).date()).days >= MAX_HOLDING_DAYS
-        for p in open_positions
-    )
-    rank1_ticker = None
-    if need_rank_check:
-        universe_rank = build_universe_ranking()
-        if universe_rank:
-            rank1_ticker = universe_rank[0][0]
-
     for p in open_positions:
+        p.setdefault("trade_start", p["entry_date"])
         df = hist.get(p["ticker"])
-        ind = build_indicators(df["Close"]) if df is not None and len(df) else dict(EMPTY_IND)
+
+        # session = the trading day being evaluated
+        if trading_started:
+            session = today
+        elif df is not None and len(df):
+            session = df.index[-1].date()
+        else:
+            session = today
 
         q = live.get(p["ticker"]) or {}
-        if q.get("price"):
-            cmp_, price_source = q["price"], q.get("source") or "live"
+        live_price = q.get("price")
+
+        if df is not None and len(df):
+            closes = df["Close"].astype(float).copy()
+            if live_price:     # splice the live quote in as this session's close
+                closes.loc[pd.Timestamp(session)] = float(live_price)
+                closes = closes.sort_index()
+            ind = build_indicators(closes)
+        else:
+            ind = dict(EMPTY_IND)
+
+        if live_price:
+            cmp_, price_source = float(live_price), q.get("source") or "live"
         elif ind["close"] is not None:
             cmp_, price_source = ind["close"], "close"
         else:
@@ -476,12 +686,13 @@ def main():
             price_error = errors.get(p["ticker"]) or q.get("error") or "No price found for this symbol on Yahoo Finance"
 
         ind_for_exit = dict(ind, close=cmp_)
-        is_rank1 = bool(rank1_ticker) and p["ticker"] == rank1_ticker
-        reason, pnl_pct, detail = check_exit(p, ind_for_exit, today, is_rank1)
+        res = check_exit(p, ind_for_exit, df, session, today, close_window,
+                         lambda t=p["ticker"]: is_rank1_for(t))
+        reason, detail = res["reason"], res["detail"]
+        p.update(res["updates"])
 
-        # Still Rank #1 at the max-holding boundary - reset the holding clock
-        # instead of exiting, exactly like the backtest's EXTEND behaviour.
-        # No sell, no Telegram alert - just a fresh entry_date.
+        # Still Rank #1 at the max-holding boundary - reset the holding clock instead of
+        # exiting, exactly like the backtest's EXTEND. No sell, no alert.
         if reason == "extend":
             p.setdefault("extensions", []).append(today.isoformat())
             p["entry_date"] = today.isoformat()
@@ -499,6 +710,7 @@ def main():
 
         entry = datetime.fromisoformat(p["entry_date"]).date()
         days_held = (today - entry).days
+        info = res["info"]
 
         open_rows.append({
             "id": p["id"], "ticker": p["ticker"],
@@ -510,26 +722,24 @@ def main():
             "ema_fast": ind["ema_fast_today"], "ema_slow": ind["ema_slow_today"],
             "invested": cost, "value": value,
             "pnl": (value - cost) if value is not None else None,
-            "pnl_pct": pnl_pct, "days_held": days_held,
+            "pnl_pct": res["live_pnl_pct"], "days_held": days_held,
             "days_left": max(MAX_HOLDING_DAYS - days_held, 0),
+            "tp_price": info["tp_price"], "sl_price": info["sl_price"],
+            "be_price": info["be_price"], "be_armed": info["be_armed"],
+            "trailing": bool(p.get("trailing")), "trail_stop": info["trail_stop"],
+            "trail_since": p.get("trail_since"),
             "exit_reason": reason,
             "exit_label": REASON_LABELS.get(reason) if reason else None,
             "exit_detail": detail if reason else None,
         })
 
-        # Raise a Telegram alert once per (position, reason)
+        if res["notice"]:                                   # e.g. trailing started (HOLD, not SELL)
+            nr, ndetail, nprice = res["notice"]
+            if raise_alert(s, p, nr, nprice, (nprice - float(p["avg_price"])) / float(p["avg_price"]) * 100,
+                           ndetail, kind="HOLD"):
+                new_alerts += 1
         if reason:
-            already = any(a["position_id"] == p["id"] and a["reason"] == reason for a in s["alerts"])
-            if not already:
-                alert_id = s["next_alert_id"]
-                s["next_alert_id"] += 1
-                ok, _ = send_telegram(alert_message(p["ticker"], reason, cmp_, pnl_pct, detail))
-                s["alerts"].append({
-                    "id": alert_id, "position_id": p["id"], "ticker": p["ticker"],
-                    "reason": reason, "price": cmp_, "pnl_pct": pnl_pct, "detail": detail,
-                    "created_at": datetime.now().isoformat(timespec="seconds"),
-                    "seen": False, "telegram_ok": ok,
-                })
+            if raise_alert(s, p, reason, res["price"], res["pnl_pct"], detail):
                 new_alerts += 1
 
     closed_rows = sorted(
@@ -572,6 +782,10 @@ def main():
             "take_profit_pct": TAKE_PROFIT_PCT, "stop_loss_pct": STOP_LOSS_PCT,
             "max_holding_days": MAX_HOLDING_DAYS, "ema_fast": EMA_FAST, "ema_slow": EMA_SLOW,
             "ema_exit_on": EXIT_ON_EMA_DEATH_CROSS, "mean_reversion_on": EXIT_ON_MEAN_REVERSION,
+            "trail_enabled": TRAIL_ENABLED, "trail_pct": TRAIL_PCT, "trail_lock_tp": TRAIL_LOCK_TP,
+            "breakeven_enabled": BREAKEVEN_ENABLED,
+            "breakeven_trigger_pct": BREAKEVEN_TRIGGER_PCT, "breakeven_stop_pct": BREAKEVEN_STOP_PCT,
+            "close_rules_from": CLOSE_RULES_FROM.strftime("%H:%M"),
         },
         "last_scan": s["meta"]["last_scan"],
         "telegram_configured": bool(os.environ.get("TELEGRAM_BOT_TOKEN") and os.environ.get("TELEGRAM_CHAT_ID")),
