@@ -30,11 +30,23 @@
       "created_at": "2026-10-05T07:24:29",
       "seen": false,
       "telegram_ok": true
+    },
+    {
+      "id": 2,
+      "position_id": -1,
+      "ticker": "TEST.NS",
+      "reason": "breakeven_stop",
+      "price": 100.0,
+      "pnl_pct": 1.0,
+      "detail": "[TEST - ignore] +3% was touched earlier; low 100.90 <= breakeven stop 101.00; live price 100.90",
+      "created_at": "2026-10-05T07:28:48",
+      "seen": false,
+      "telegram_ok": false
     }
   ],
   "meta": {
-    "last_scan": "2026-10-05T07:24:29"
+    "last_scan": "2026-10-05T07:28:48"
   },
   "next_position_id": 2,
-  "next_alert_id": 2
+  "next_alert_id": 3
 }
