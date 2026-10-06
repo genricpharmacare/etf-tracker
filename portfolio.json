@@ -66,11 +66,23 @@
       "created_at": "2026-10-06T05:57:33",
       "seen": false,
       "telegram_ok": true
+    },
+    {
+      "id": 5,
+      "position_id": -1,
+      "ticker": "TEST.NS",
+      "reason": "late_hold_ema_exit",
+      "price": 100.0,
+      "pnl_pct": 0.6,
+      "detail": "[TEST - ignore] held 7 days (>= 6); fast EMA2 crossed below EMA13 (99.40 vs 99.55)",
+      "created_at": "2026-10-06T08:09:02",
+      "seen": false,
+      "telegram_ok": true
     }
   ],
   "meta": {
-    "last_scan": "2026-10-06T07:57:56"
+    "last_scan": "2026-10-06T08:09:02"
   },
   "next_position_id": 2,
-  "next_alert_id": 5
+  "next_alert_id": 6
 }
