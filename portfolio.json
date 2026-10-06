@@ -16,6 +16,20 @@
       "trade_start": "2026-10-01",
       "trailing": true,
       "trail_since": "2026-10-05"
+    },
+    {
+      "id": 2,
+      "ticker": "GROWWHOSPI.NS",
+      "entry_date": "2026-10-06",
+      "qty": 215,
+      "avg_price": 46.9,
+      "status": "OPEN",
+      "exit_date": null,
+      "exit_price": null,
+      "exit_reason": null,
+      "exit_pnl_pct": null,
+      "note": "rank 1 on 6 oct 2026",
+      "created_at": "2026-10-06T10:06:24.645Z"
     }
   ],
   "alerts": [
@@ -60,7 +74,7 @@
       "position_id": -1,
       "ticker": "TEST.NS",
       "reason": "take_profit",
-      "price": 100.0,
+      "price": 100,
       "pnl_pct": 4.2,
       "detail": "[TEST - ignore] +4.20% vs avg buy, target was +4.0%",
       "created_at": "2026-10-06T05:57:33",
@@ -72,7 +86,7 @@
       "position_id": -1,
       "ticker": "TEST.NS",
       "reason": "late_hold_ema_exit",
-      "price": 100.0,
+      "price": 100,
       "pnl_pct": 0.6,
       "detail": "[TEST - ignore] held 7 days (>= 6); fast EMA2 crossed below EMA13 (99.40 vs 99.55)",
       "created_at": "2026-10-06T08:09:02",
@@ -83,6 +97,6 @@
   "meta": {
     "last_scan": "2026-10-06T10:03:35"
   },
-  "next_position_id": 2,
+  "next_position_id": 3,
   "next_alert_id": 6
 }
