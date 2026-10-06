@@ -21,7 +21,9 @@ STRATEGY = identical to backtest_nse.py (latest version):
       e. price back at/above 20DMA                                  => mean_reversion
       f. EMA20 crosses below EMA50                                  => ema_death_cross
       g. trailing + no longer Rank #1                               => trail_rank_lost
-      h. held >= MAX_HOLDING_DAYS: still Rank #1 ? extend : max_holding_period
+      h. held >= LATE_HOLD_START_DAY days and fast EMA(2,13) crosses below slow => late_hold_ema_exit
+         (runs right after the normal EMA 20/50 check, before max-holding)
+      i. held >= MAX_HOLDING_DAYS: still Rank #1 ? extend : max_holding_period
 ==============================================================================
 """
 
@@ -45,7 +47,7 @@ MAX_HOLDING_DAYS = 10
 
 # ---- Trailing profit (when TP is touched and the ETF is still Rank #1) ----
 TRAIL_ENABLED = True
-TRAIL_PCT = 2.0       # exit when price falls this % below the peak
+TRAIL_PCT = 1.0       # exit when price falls this % below the peak
 TRAIL_LOCK_TP = True  # stop never goes below the take-profit price
 
 # ---- Breakeven stop ----
@@ -59,11 +61,20 @@ EXIT_ON_EMA_DEATH_CROSS = True
 EMA_FAST = 20
 EMA_SLOW = 50
 
+# ---- Late-holding fast-EMA safety check ----
+# Once a position is LATE_HOLD_START_DAY (calendar days) old and nothing else has
+# exited it, a fast EMA(LATE_HOLD_EMA_FAST, LATE_HOLD_EMA_SLOW) death cross exits it
+# early instead of waiting for MAX_HOLDING_DAYS. Close-based, like the backtest.
+LATE_HOLD_EMA_EXIT = True
+LATE_HOLD_START_DAY = 6
+LATE_HOLD_EMA_FAST = 2
+LATE_HOLD_EMA_SLOW = 13
+
 # ---- Schedule / market clock (all IST) ----
 IST = timezone(timedelta(hours=5, minutes=30))
 MARKET_OPEN = dtime(9, 15)
 MARKET_CLOSE = dtime(15, 30)
-CLOSE_RULES_FROM = dtime(15, 15)       # close-based rules are evaluated from this time
+CLOSE_RULES_FROM = dtime(14, 30)       # close-based rules are evaluated from this time
 SCHEDULE_GATE = (dtime(9, 0), dtime(16, 0))   # scheduled runs outside this window just exit
 
 USE_LIVE_PRICE = True
@@ -118,6 +129,7 @@ REASON_LABELS = {
     "trail_stop": f"Trailing stop hit ({TRAIL_PCT:g}% below peak)",
     "trail_rank_lost": "Trailing - no longer Rank #1",
     "breakeven_stop": f"Breakeven stop hit (entry +{BREAKEVEN_STOP_PCT:g}%)",
+    "late_hold_ema_exit": f"Late-hold EMA {LATE_HOLD_EMA_FAST}/{LATE_HOLD_EMA_SLOW} death cross",
 }
 
 
@@ -317,6 +329,8 @@ def build_indicators(close: pd.Series):
     pct_dist = (close - dma) / dma * 100
     ema_fast = close.ewm(span=EMA_FAST, min_periods=EMA_FAST, adjust=False).mean()
     ema_slow = close.ewm(span=EMA_SLOW, min_periods=EMA_SLOW, adjust=False).mean()
+    late_fast = close.ewm(span=LATE_HOLD_EMA_FAST, min_periods=LATE_HOLD_EMA_FAST, adjust=False).mean()
+    late_slow = close.ewm(span=LATE_HOLD_EMA_SLOW, min_periods=LATE_HOLD_EMA_SLOW, adjust=False).mean()
 
     def at(series, i):
         try:
@@ -334,12 +348,18 @@ def build_indicators(close: pd.Series):
         "ema_slow_today": at(ema_slow, -1),
         "ema_fast_prev": at(ema_fast, -2),
         "ema_slow_prev": at(ema_slow, -2),
+        "late_fast_today": at(late_fast, -1),
+        "late_slow_today": at(late_slow, -1),
+        "late_fast_prev": at(late_fast, -2),
+        "late_slow_prev": at(late_slow, -2),
     }
 
 
 EMPTY_IND = {"close": None, "close_date": None, "dma": None, "pct_dist": None,
              "ema_fast_today": None, "ema_slow_today": None,
-             "ema_fast_prev": None, "ema_slow_prev": None}
+             "ema_fast_prev": None, "ema_slow_prev": None,
+             "late_fast_today": None, "late_slow_today": None,
+             "late_fast_prev": None, "late_slow_prev": None}
 
 
 # ==============================================================================
@@ -377,6 +397,13 @@ def build_universe_ranking():
 
 def _dates(df):
     return pd.Series(df.index.date, index=df.index)
+
+
+def _cross_down(fast_today, slow_today, fast_prev, slow_prev):
+    """Death cross exactly like the backtest: fast was >= slow yesterday, below today."""
+    if None in (fast_today, slow_today, fast_prev, slow_prev):
+        return False
+    return fast_prev >= slow_prev and fast_today < slow_today
 
 
 def check_exit(position, ind, bars, session, today, close_window, is_rank1_fn):
@@ -487,12 +514,18 @@ def check_exit(position, ind, bars, session, today, close_window, is_rank1_fn):
     elif close_window and EXIT_ON_MEAN_REVERSION and ind["pct_dist"] is not None and ind["pct_dist"] >= 0:
         reason, price = "mean_reversion", cmp_
         detail = f"price back at/above 20DMA ({ind['pct_dist']:+.2f}%)"
-    elif close_window and EXIT_ON_EMA_DEATH_CROSS:
-        ft, st = ind["ema_fast_today"], ind["ema_slow_today"]
-        fp, sp = ind["ema_fast_prev"], ind["ema_slow_prev"]
-        if None not in (ft, st, fp, sp) and fp >= sp and ft < st:
-            reason, price = "ema_death_cross", cmp_
-            detail = f"EMA{EMA_FAST} crossed below EMA{EMA_SLOW} ({ft:.2f} vs {st:.2f})"
+    elif (close_window and EXIT_ON_EMA_DEATH_CROSS
+          and _cross_down(ind["ema_fast_today"], ind["ema_slow_today"],
+                          ind["ema_fast_prev"], ind["ema_slow_prev"])):
+        reason, price = "ema_death_cross", cmp_
+        detail = (f"EMA{EMA_FAST} crossed below EMA{EMA_SLOW} "
+                  f"({ind['ema_fast_today']:.2f} vs {ind['ema_slow_today']:.2f})")
+    elif (close_window and LATE_HOLD_EMA_EXIT and days_held >= LATE_HOLD_START_DAY
+          and _cross_down(ind["late_fast_today"], ind["late_slow_today"],
+                          ind["late_fast_prev"], ind["late_slow_prev"])):
+        reason, price = "late_hold_ema_exit", cmp_
+        detail = (f"held {days_held} days (>= {LATE_HOLD_START_DAY}); fast EMA{LATE_HOLD_EMA_FAST} crossed "
+                  f"below EMA{LATE_HOLD_EMA_SLOW} ({ind['late_fast_today']:.2f} vs {ind['late_slow_today']:.2f})")
 
     if reason is None and close_window and days_held >= MAX_HOLDING_DAYS:
         if is_rank1_fn():
@@ -553,12 +586,13 @@ def alert_message(ticker, reason, price, pnl_pct, detail, kind="SELL"):
 TEST_ALERT_SAMPLES = {
     "take_profit": (4.20, "+4.20% vs avg buy, target was +4.0%"),
     "stop_loss": (-15.30, "low 84.70 <= stop 85.00 (-15%); live price 84.70"),
-    "trail_stop": (4.10, "low 104.10 <= trailing stop 104.20 (peak 106.30, -2%); live price 104.10"),
+    "trail_stop": (4.10, "low 104.10 <= trailing stop 104.20 (peak 106.30, -1%); live price 104.10"),
     "breakeven_stop": (1.00, "+3% was touched earlier; low 100.90 <= breakeven stop 101.00; live price 100.90"),
     "trail_rank_lost": (5.20, "ETF is no longer Rank #1 while trailing - exit near close"),
     "mean_reversion": (1.10, "price back at/above 20DMA (+1.10%)"),
     "ema_death_cross": (-2.50, "EMA20 crossed below EMA50 (98.40 vs 99.10)"),
     "max_holding_period": (-1.80, "held 10 days, limit is 10"),
+    "late_hold_ema_exit": (0.60, "held 7 days (>= 6); fast EMA2 crossed below EMA13 (99.40 vs 99.55)"),
 }
 
 
@@ -785,6 +819,8 @@ def main():
             "trail_enabled": TRAIL_ENABLED, "trail_pct": TRAIL_PCT, "trail_lock_tp": TRAIL_LOCK_TP,
             "breakeven_enabled": BREAKEVEN_ENABLED,
             "breakeven_trigger_pct": BREAKEVEN_TRIGGER_PCT, "breakeven_stop_pct": BREAKEVEN_STOP_PCT,
+            "late_hold_on": LATE_HOLD_EMA_EXIT, "late_hold_start_day": LATE_HOLD_START_DAY,
+            "late_hold_ema_fast": LATE_HOLD_EMA_FAST, "late_hold_ema_slow": LATE_HOLD_EMA_SLOW,
             "close_rules_from": CLOSE_RULES_FROM.strftime("%H:%M"),
         },
         "last_scan": s["meta"]["last_scan"],

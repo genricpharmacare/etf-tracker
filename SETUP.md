@@ -107,5 +107,6 @@ browser bar ke.
 - **Cron UTC me hota hai**: 9:15 IST = 03:45 UTC. `scan.yml` me teen cron lines hain jo 9:15, 9:30 … 15:15, 15:30 IST cover karti hain.
 - **Holidays**: `nse_holidays.json` me NSE ke trading holidays hain (2026 bhara hua). Har saal December me agle saal ki dates add karo, warna holiday par scan chalega (nuksan nahi, bas bekaar run).
 - **Target / trailing / breakeven / stop-loss** har scan me day ke High/Low se check hote hain.
+- **Late-hold EMA(2,13)**: position 6 din (`LATE_HOLD_START_DAY`) se purani ho aur koi aur exit na laga ho, to fast EMA 2/13 death-cross par `late_hold_ema_exit` alert aata hai (close-based, 3:15 PM ke baad wale scans me).
 - **20 DMA, EMA death cross, Rank #1 aur max-holding** backtest me closing price par chalte hain, isliye ye sirf 3:15 PM ke baad wale scans me check hote hain (`CLOSE_RULES_FROM` in scan.py).
 - Repo me ab roz ~26 commits banenge (har scan ka ek). Normal hai.

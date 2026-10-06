@@ -25,6 +25,7 @@ on:
           - mean_reversion
           - ema_death_cross
           - max_holding_period
+          - late_hold_ema_exit
 
 permissions:
   contents: write   # needed so the workflow can commit portfolio.json / state.json back

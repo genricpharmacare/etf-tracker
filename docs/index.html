@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#151A2D">
 <link rel="manifest" href="manifest.json">
-<title>ETF Ki Dukan</title>
+<title>ETF</title>
 <style>
 :root{
   --ink:#151A2D; --surface:#1E2438; --surface-2:#2A3150; --line:#343C5C;
@@ -95,7 +95,7 @@ select:focus{outline:2px solid var(--accent);outline-offset:-1px;border-color:va
 <body>
 <div class="wrap">
   <header>
-    <h1>ETF Ki Dukan</h1>
+    <h1>ETF</h1>
     <div class="meta" id="meta">Loading…</div>
   </header>
 
@@ -195,6 +195,7 @@ select:focus{outline:2px solid var(--accent);outline-offset:-1px;border-color:va
       <option value="mean_reversion">Back at 20 DMA (mean reversion)</option>
       <option value="ema_death_cross">EMA death cross</option>
       <option value="max_holding_period">Max holding period</option>
+      <option value="late_hold_ema_exit">Late-hold EMA death cross</option>
     </select>
     <div class="acts">
       <button class="ghost" id="g-test-send">Send test alert</button>
@@ -324,6 +325,7 @@ $('#meta').textContent = s.last_scan ? 'Checked ' + fmtIST(s.last_scan) : 'Not c
     + (r.breakeven_enabled ? '<b>breakeven</b> stop +' + r.breakeven_stop_pct + '% after +' + r.breakeven_trigger_pct + '% · ' : '')
     + '<b>' + r.max_holding_days + '-day</b> holding limit · '
     + (r.ema_exit_on ? '<b>EMA ' + r.ema_fast + '/' + r.ema_slow + '</b> death cross · ' : '')
+    + (r.late_hold_on ? '<b>late-hold EMA ' + r.late_hold_ema_fast + '/' + r.late_hold_ema_slow + '</b> death cross after day ' + r.late_hold_start_day + ' · ' : '')
     + 'stop-loss ' + (r.stop_loss_pct == null ? 'off' : r.stop_loss_pct + '%')
     + '. Scanned every 15 min, 9:15 AM–3:30 PM IST on trading days. Target/stops are checked on every scan (day high/low); '
     + '20 DMA, EMA, Rank #1 and holding-day rules are checked from ' + (r.close_rules_from || '15:15') + ' (they use the closing price).'
