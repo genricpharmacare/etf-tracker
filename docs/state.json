@@ -1,5 +1,39 @@
 {
-  "open_positions": [],
+  "open_positions": [
+    {
+      "id": 2,
+      "ticker": "GROWWHOSPI.NS",
+      "display_ticker": "GROWWHOSPI",
+      "entry_date": "2026-10-06",
+      "qty": 215.0,
+      "avg_price": 46.9,
+      "note": "rank 1 on 6 oct 2026",
+      "cmp": 46.65999984741211,
+      "price_source": "live",
+      "price_error": null,
+      "price_date": "2026-10-06",
+      "dma": 51.281999588012695,
+      "pct_dist": -9.012908579487199,
+      "ema_fast": 50.607713581155295,
+      "ema_slow": null,
+      "invested": 10083.5,
+      "value": 10031.899967193604,
+      "pnl": -51.600032806396484,
+      "pnl_pct": -0.5117274042385698,
+      "days_held": 0,
+      "days_left": 10,
+      "tp_price": 48.776,
+      "sl_price": 39.864999999999995,
+      "be_price": 47.369,
+      "be_armed": false,
+      "trailing": false,
+      "trail_stop": null,
+      "trail_since": null,
+      "exit_reason": null,
+      "exit_label": null,
+      "exit_detail": null
+    }
+  ],
   "closed_positions": [
     {
       "id": 1,
@@ -19,7 +53,7 @@
       "display_ticker": "TEST",
       "reason": "late_hold_ema_exit",
       "label": "Late-hold EMA 2/13 death cross",
-      "price": 100.0,
+      "price": 100,
       "pnl_pct": 0.6,
       "detail": "[TEST - ignore] held 7 days (>= 6); fast EMA2 crossed below EMA13 (99.40 vs 99.55)",
       "created_at": "2026-10-06T08:09:02",
@@ -32,7 +66,7 @@
       "display_ticker": "TEST",
       "reason": "take_profit",
       "label": "Target hit",
-      "price": 100.0,
+      "price": 100,
       "pnl_pct": 4.2,
       "detail": "[TEST - ignore] +4.20% vs avg buy, target was +4.0%",
       "created_at": "2026-10-06T05:57:33",
@@ -80,13 +114,13 @@
     }
   ],
   "summary": {
-    "invested": 0.0,
-    "priced_invested": 0,
-    "value": 0.0,
-    "pnl": 0.0,
-    "pnl_pct": null,
-    "open_count": 0,
-    "priced_count": 0,
+    "invested": 10083.5,
+    "priced_invested": 10083.5,
+    "value": 10031.899967193604,
+    "pnl": -51.600032806396484,
+    "pnl_pct": -0.5117274042385728,
+    "open_count": 1,
+    "priced_count": 1,
     "unpriced_count": 0,
     "action_count": 0
   },
@@ -110,7 +144,7 @@
     "late_hold_ema_slow": 13,
     "close_rules_from": "14:30"
   },
-  "last_scan": "2026-10-06T10:03:35",
+  "last_scan": "2026-10-06T10:06:52",
   "telegram_configured": true,
-  "server_time": "2026-10-06T10:03:35"
+  "server_time": "2026-10-06T10:06:52"
 }
