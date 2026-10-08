@@ -144,7 +144,7 @@
     "late_hold_ema_slow": 13,
     "close_rules_from": "14:30"
   },
-  "last_scan": "2026-10-08T06:00:42",
+  "last_scan": "2026-10-08T06:39:08",
   "telegram_configured": true,
-  "server_time": "2026-10-08T06:00:42"
+  "server_time": "2026-10-08T06:39:08"
 }
