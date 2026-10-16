@@ -20,7 +20,7 @@
     {
       "id": 2,
       "ticker": "GROWWHOSPI.NS",
-      "entry_date": "2026-10-06",
+      "entry_date": "2026-10-16",
       "qty": 215,
       "avg_price": 46.9,
       "status": "OPEN",
@@ -30,7 +30,10 @@
       "exit_pnl_pct": null,
       "note": "rank 1 on 6 oct 2026",
       "created_at": "2026-10-06T10:06:24.645Z",
-      "trade_start": "2026-10-06"
+      "trade_start": "2026-10-06",
+      "extensions": [
+        "2026-10-16"
+      ]
     }
   ],
   "alerts": [
@@ -108,7 +111,7 @@
     }
   ],
   "meta": {
-    "last_scan": "2026-10-16T08:25:52"
+    "last_scan": "2026-10-16T09:04:09"
   },
   "next_position_id": 3,
   "next_alert_id": 7
