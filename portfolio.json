@@ -108,11 +108,23 @@
       "created_at": "2026-10-16T06:17:46",
       "seen": false,
       "telegram_ok": true
+    },
+    {
+      "id": 7,
+      "position_id": 2,
+      "ticker": "GROWWHOSPI.NS",
+      "reason": "max_holding_period",
+      "price": 44.25,
+      "pnl_pct": -5.650319829424304,
+      "detail": "held 10 days, limit is 10",
+      "created_at": "2026-10-26T09:22:15",
+      "seen": false,
+      "telegram_ok": true
     }
   ],
   "meta": {
-    "last_scan": "2026-10-26T07:51:16"
+    "last_scan": "2026-10-26T09:22:15"
   },
   "next_position_id": 3,
-  "next_alert_id": 7
+  "next_alert_id": 8
 }
