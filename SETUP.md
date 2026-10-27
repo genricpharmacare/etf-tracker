@@ -102,11 +102,19 @@ browser bar ke.
 - **Free tier limits** — GitHub Actions free minutes (2000/month private repo, unlimited public)
   itni hai ki yeh scan kabhi khatam nahi hogi is scale par.
 
-## Schedule & strategy notes (15-min version)
+## Schedule & strategy notes (split-capital / slot version)
 
-- **Cron UTC me hota hai**: 9:15 IST = 03:45 UTC. `scan.yml` me teen cron lines hain jo 9:15, 9:30 … 15:15, 15:30 IST cover karti hain.
-- **Holidays**: `nse_holidays.json` me NSE ke trading holidays hain (2026 bhara hua). Har saal December me agle saal ki dates add karo, warna holiday par scan chalega (nuksan nahi, bas bekaar run).
+Strategy = `backtest_nse_split.py`. Saari values `scan.py` ke upar CONFIG me hain aur backtest se same rakhni hain:
+DMA 10, target +3%, stop-loss -8%, max hold 5 din, trail 0.5%, breakeven (+1.5% touch -> stop entry+1%), EMA 5/40 death cross, late-hold EMA 3/13 (din 5 ke baad).
+
+- **Slots**: capital `N_SLOTS` (2) hisson me. `MAX_CONCURRENT_POSITIONS = 1` => ek time par ek hi position; jis slot ne aaj sell kiya wo aaj dobara use nahi hota (T+1), doosra free slot usi din buy leta hai. `ALLOW_SAME_ETF = False` => jo ETF already held hai wo skip, agla rank liya jata hai.
+- **BUY alert**: roz **3:00 PM - 3:29 PM IST** ke scans me Telegram + dashboard par "BUY - ETF (Slot n)" aata hai (backtest close price par kharidta hai, isliye order 3:30 se pehle lagao). Dashboard ka "Record this buy" button form pehle se bhar deta hai. Agar 3:00-3:15 ke beech rank badal jaye to naya BUY alert aa sakta hai.
+- **Suggested quantity**: slot ka paisa = us slot ki last sell ka proceeds (compounding), ya pehli baar `INITIAL_CAPITAL / N_SLOTS`. Apni asli capital ke hisaab se `INITIAL_CAPITAL` `scan.py` me badlo.
+- **Position ko slot milta hai**: dashboard me Add position par slot chuno (ya Auto). Purani positions ko scan khud slot assign kar deta hai.
+- **Cron UTC me hota hai**: 9:15 IST = 03:45 UTC. `scan.yml` me teen cron lines 9:15, 9:30 ... 15:15, 15:30 IST cover karti hain.
+- **Holidays**: `nse_holidays.json` me 2026 bhara hai. Har saal December me agle saal ki dates add karo.
 - **Target / trailing / breakeven / stop-loss** har scan me day ke High/Low se check hote hain.
-- **Late-hold EMA(2,13)**: position 6 din (`LATE_HOLD_START_DAY`) se purani ho aur koi aur exit na laga ho, to fast EMA 2/13 death-cross par `late_hold_ema_exit` alert aata hai (close-based, 3:15 PM ke baad wale scans me).
-- **20 DMA, EMA death cross, Rank #1 aur max-holding** backtest me closing price par chalte hain, isliye ye sirf 3:15 PM ke baad wale scans me check hote hain (`CLOSE_RULES_FROM` in scan.py).
-- Repo me ab roz ~26 commits banenge (har scan ka ek). Normal hai.
+- **DMA, EMA death cross, Rank #1, max-holding, late-hold EMA** closing price par chalte hain, isliye 2:30 PM ke baad wale scans me check hote hain (`CLOSE_RULES_FROM` in scan.py).
+- **Data safety**: ranking me wo ETF skip hote hain jinka last bar 5 din se purana ho ya jisme ek din me 20% se zyada move dikhe (bad print), backtest ke cleaning jaisa.
+- **Test alert**: dashboard Setup -> "Test an alert" me ab "BUY signal" bhi hai.
+- Repo me roz ~26 commits banenge (har scan ka ek). Normal hai.

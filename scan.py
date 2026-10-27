@@ -10,7 +10,7 @@ trading days.
   2. Fetches prices, runs the exit engine, sends new Telegram alerts.
   3. Writes portfolio.json AND docs/state.json (dashboard reads the latter).
 
-STRATEGY = identical to backtest_nse.py (latest version):
+STRATEGY = identical to backtest_nse_split.py (split-capital / slot version):
     Intraday-touch rules (checked EVERY run, using today's High/Low so far):
       a. trailing active  -> stop = max(peak*(1-TRAIL_PCT%), TP price); low <= stop => trail_stop
       b. TP touched       -> still Rank #1 ? start trailing (no sell) : take_profit
@@ -18,12 +18,17 @@ STRATEGY = identical to backtest_nse.py (latest version):
       d. low <= entry -15%                                          => stop_loss
     Close-based rules (checked only from CLOSE_RULES_FROM, default 3:15 PM IST,
     because the backtest uses the daily CLOSE for these):
-      e. price back at/above 20DMA                                  => mean_reversion
-      f. EMA20 crosses below EMA50                                  => ema_death_cross
+      e. price back at/above DMA (DMA_WINDOW)                        => mean_reversion
+      f. EMA_FAST crosses below EMA_SLOW                             => ema_death_cross
       g. trailing + no longer Rank #1                               => trail_rank_lost
       h. held >= LATE_HOLD_START_DAY days and fast EMA(2,13) crosses below slow => late_hold_ema_exit
-         (runs right after the normal EMA 20/50 check, before max-holding)
+         (runs right after the normal EMA death-cross check, before max-holding)
       i. held >= MAX_HOLDING_DAYS: still Rank #1 ? extend : max_holding_period
+    Entry signals (from ENTRY_SIGNAL_FROM, default 3:00 PM IST - backtest buys at the CLOSE):
+      Capital is split into N_SLOTS slots. A slot is usable for a new buy when it holds no
+      position, did not sell today (T+1 settlement) and fewer than MAX_CONCURRENT_POSITIONS
+      positions remain open after today's exits. The pick is the best-ranked ETF (most
+      below its DMA) that is not already held (ALLOW_SAME_ETF = False). -> Telegram "BUY" alert.
 ==============================================================================
 """
 
@@ -39,35 +44,44 @@ import pandas as pd
 # STRATEGY CONFIG - keep identical to your backtest script
 # ==============================================================================
 
-DMA_WINDOW = 20
-TAKE_PROFIT_PCT = 4.0
-STOP_LOSS_PCT = -15
+DMA_WINDOW = 10
+INITIAL_CAPITAL = 20000
+TRANSACTION_COST_PCT = 0.019    # % per trade side (used only for suggested buy quantity)
+
+# ---- SPLIT-CAPITAL / SLOTS (same as backtest_nse_split.py) ----
+N_SLOTS = 2                     # capital split into this many parts (2 = 50/50)
+MAX_CONCURRENT_POSITIONS = 1    # 1 = one position at a time, 2 = both slots can be invested together
+SETTLE_T1 = True                # sell proceeds usable from the NEXT trading day
+ALLOW_SAME_ETF = False          # False = an ETF already held in another slot is skipped
+
+TAKE_PROFIT_PCT = 3.0
+STOP_LOSS_PCT = -8
 EXIT_ON_MEAN_REVERSION = True
-MAX_HOLDING_DAYS = 10
+MAX_HOLDING_DAYS = 5
 
 # ---- Trailing profit (when TP is touched and the ETF is still Rank #1) ----
 TRAIL_ENABLED = True
-TRAIL_PCT = 1.0       # exit when price falls this % below the peak
+TRAIL_PCT = 0.5       # exit when price falls this % below the peak
 TRAIL_LOCK_TP = True  # stop never goes below the take-profit price
 
 # ---- Breakeven stop ----
 # Once +BREAKEVEN_TRIGGER_PCT% has been touched on an EARLIER day, the stop moves to
 # entry +BREAKEVEN_STOP_PCT% (active from the next session, same as the backtest).
 BREAKEVEN_ENABLED = True
-BREAKEVEN_TRIGGER_PCT = 3
+BREAKEVEN_TRIGGER_PCT = 1.5
 BREAKEVEN_STOP_PCT = 1
 
 EXIT_ON_EMA_DEATH_CROSS = True
-EMA_FAST = 20
-EMA_SLOW = 50
+EMA_FAST = 5
+EMA_SLOW = 40
 
 # ---- Late-holding fast-EMA safety check ----
 # Once a position is LATE_HOLD_START_DAY (calendar days) old and nothing else has
 # exited it, a fast EMA(LATE_HOLD_EMA_FAST, LATE_HOLD_EMA_SLOW) death cross exits it
 # early instead of waiting for MAX_HOLDING_DAYS. Close-based, like the backtest.
 LATE_HOLD_EMA_EXIT = True
-LATE_HOLD_START_DAY = 6
-LATE_HOLD_EMA_FAST = 2
+LATE_HOLD_START_DAY = 5
+LATE_HOLD_EMA_FAST = 3
 LATE_HOLD_EMA_SLOW = 13
 
 # ---- Schedule / market clock (all IST) ----
@@ -75,11 +89,17 @@ IST = timezone(timedelta(hours=5, minutes=30))
 MARKET_OPEN = dtime(9, 15)
 MARKET_CLOSE = dtime(15, 30)
 CLOSE_RULES_FROM = dtime(14, 30)       # close-based rules are evaluated from this time
+ENTRY_SIGNAL_FROM = dtime(15, 0)       # BUY signals are computed from this time ...
+ENTRY_SIGNAL_UNTIL = dtime(15, 29)     # ... until just before the close (still time to place the order)
 SCHEDULE_GATE = (dtime(9, 0), dtime(16, 0))   # scheduled runs outside this window just exit
 
 USE_LIVE_PRICE = True
 USE_MASTER_CALENDAR = False
 PRICE_HISTORY_PERIOD = "6mo"
+
+# ---- data sanity (mirrors backtest's bad-print / stale-price handling) ----
+MAX_DAILY_MOVE_PCT = 20.0       # ETF whose last bar moved more than this is excluded from ranking
+MAX_STALE_DAYS = 5              # ETF with no bar for this many calendar days is excluded from ranking
 
 # ETF universe used ONLY for the "still rank #1 -> extend holding instead of
 # exiting on max-holding-day" rule below. Kept identical to the backtest's
@@ -121,7 +141,7 @@ HOLIDAYS_PATH = os.path.join(BASE_DIR, "nse_holidays.json")
 REASON_LABELS = {
     "take_profit": "Target hit",
     "stop_loss": "Stop-loss hit",
-    "mean_reversion": "Back at 20 DMA",
+    "mean_reversion": f"Back at {DMA_WINDOW} DMA",
     "ema_death_cross": f"EMA {EMA_FAST}/{EMA_SLOW} death cross",
     "max_holding_period": f"Held {MAX_HOLDING_DAYS} days",
     "extend": f"Still Rank #1 - holding extended",
@@ -130,6 +150,7 @@ REASON_LABELS = {
     "trail_rank_lost": "Trailing - no longer Rank #1",
     "breakeven_stop": f"Breakeven stop hit (entry +{BREAKEVEN_STOP_PCT:g}%)",
     "late_hold_ema_exit": f"Late-hold EMA {LATE_HOLD_EMA_FAST}/{LATE_HOLD_EMA_SLOW} death cross",
+    "buy_signal": "Buy signal (rank entry)",
 }
 
 
@@ -368,7 +389,7 @@ EMPTY_IND = {"close": None, "close_date": None, "dma": None, "pct_dist": None,
 
 def build_universe_ranking():
     """Fetch the whole ETF universe and rank tickers by %-distance below their
-    20DMA (most negative = most discounted = Rank #1), identical to the
+    DMA (most negative = most discounted = Rank #1), identical to the
     backtest's build_daily_rankings(). Returns a sorted list of
     (ticker, close, pct_dist) tuples, most-discounted first."""
     hist, errors = fetch_history(ETF_UNIVERSE)
@@ -376,10 +397,21 @@ def build_universe_ranking():
         print(f"[universe] {len(errors)}/{len(ETF_UNIVERSE)} tickers failed to fetch")
 
     rows = []
+    skipped = []
+    ref_day = now_ist().date()
     for t, df in hist.items():
         close = df["Close"].dropna()
         if len(close) < DMA_WINDOW:
             continue
+        # bad-print / stale guards (backtest drops >20% single-day prints and ffills max 5 days)
+        if (ref_day - close.index[-1].date()).days > MAX_STALE_DAYS:
+            skipped.append(f"{t} stale")
+            continue
+        if len(close) >= 2 and close.iloc[-2] > 0:
+            last_move = abs(close.iloc[-1] / close.iloc[-2] - 1) * 100
+            if last_move > MAX_DAILY_MOVE_PCT:
+                skipped.append(f"{t} move {last_move:.0f}%")
+                continue
         dma_today = close.rolling(window=DMA_WINDOW, min_periods=DMA_WINDOW).mean().iloc[-1]
         if pd.isna(dma_today) or dma_today == 0:
             continue
@@ -387,8 +419,106 @@ def build_universe_ranking():
         pct_dist = (cmp_today - dma_today) / dma_today * 100
         rows.append((t, cmp_today, float(pct_dist)))
 
+    if skipped:
+        print(f"[universe] skipped {len(skipped)} (stale/bad print): {', '.join(skipped[:8])}")
     rows.sort(key=lambda x: x[2])
     return rows
+
+
+# ==============================================================================
+# SLOTS + ENTRY SIGNALS  (mirrors the "fresh entries" block of backtest_nse_split.py)
+# ==============================================================================
+
+def _d(x):
+    return date.fromisoformat(str(x)[:10])
+
+
+def assign_slots(s):
+    """Open positions without a slot (older entries, or added with 'Auto') get the
+    lowest free slot number. Persisted in portfolio.json."""
+    used = {int(p["slot"]) for p in list_open_positions(s) if p.get("slot")}
+    for p in sorted(list_open_positions(s), key=lambda x: x["id"]):
+        if p.get("slot"):
+            continue
+        free = [i for i in range(1, N_SLOTS + 1) if i not in used]
+        if free:
+            p["slot"] = free[0]
+            used.add(free[0])
+        else:
+            p["slot"] = None      # more open positions than slots - not tracked per slot
+
+
+def slot_last_exit(s, slot_id):
+    ds = [_d(p["exit_date"]) for p in s["positions"]
+          if p["status"] == "CLOSED" and p.get("slot") == slot_id and p.get("exit_date")]
+    return max(ds) if ds else None
+
+
+def slot_cash_estimate(s, slot_id):
+    """Cash a slot would put into the next buy: proceeds of its last sale (compounding,
+    like the backtest) or INITIAL_CAPITAL / N_SLOTS if the slot was never used."""
+    closed = [p for p in s["positions"]
+              if p["status"] == "CLOSED" and p.get("slot") == slot_id
+              and p.get("exit_price") and p.get("exit_date")]
+    if closed:
+        last = max(closed, key=lambda p: (p["exit_date"], p["id"]))
+        return float(last["qty"]) * float(last["exit_price"]) * (1 - TRANSACTION_COST_PCT / 100)
+    return INITIAL_CAPITAL / N_SLOTS
+
+
+def slot_overview(s, today, pending_exit_ids):
+    out = []
+    open_by_slot = {p.get("slot"): p for p in list_open_positions(s) if p.get("slot")}
+    for sid in range(1, N_SLOTS + 1):
+        p = open_by_slot.get(sid)
+        if p is not None:
+            status = "pending_sell" if p["id"] in pending_exit_ids else "invested"
+            out.append({"id": sid, "status": status, "ticker": p["ticker"].replace(".NS", ""),
+                        "position_id": p["id"], "cash_est": None})
+            continue
+        last = slot_last_exit(s, sid)
+        status = "blocked_t1" if (SETTLE_T1 and last is not None and last >= today) else "free"
+        out.append({"id": sid, "status": status, "ticker": None, "position_id": None,
+                    "cash_est": slot_cash_estimate(s, sid)})
+    return out
+
+
+def compute_entry_signals(s, today, pending_exit_ids, rows):
+    """Which ETF to buy in which slot TODAY (same rules as the backtest's entry block).
+
+    pending_exit_ids = open positions that an exit rule has fired on today (they are
+    treated as sold today: their slot is blocked by T+1 and their ETF is not 'held')."""
+    if not rows:
+        return []
+    open_pos = list_open_positions(s)
+    remaining = [p for p in open_pos if p["id"] not in pending_exit_ids]
+    n_open = len(remaining)
+    held = {p["ticker"] for p in remaining}
+    used_slots = {int(p["slot"]) for p in open_pos if p.get("slot")}   # incl. pending sells
+    order = [r[0] for r in rows]
+    signals = []
+    for sid in range(1, N_SLOTS + 1):
+        if n_open >= MAX_CONCURRENT_POSITIONS:
+            break
+        if sid in used_slots:
+            continue
+        last = slot_last_exit(s, sid)
+        if SETTLE_T1 and last is not None and last >= today:
+            continue
+        pick = next((r for r in rows if ALLOW_SAME_ETF or r[0] not in held), None)
+        if pick is None:
+            continue
+        t, price, pdist = pick
+        cash = slot_cash_estimate(s, sid)
+        qty = int(cash / price * (1 - TRANSACTION_COST_PCT / 100))
+        if qty <= 0:
+            continue
+        signals.append({"slot": sid, "ticker": t, "display_ticker": t.replace(".NS", ""),
+                        "price": price, "pct_dist": pdist, "rank": order.index(t) + 1,
+                        "qty": qty, "amount": qty * price, "date": today.isoformat()})
+        held.add(t)
+        n_open += 1
+    return signals
 
 
 # ==============================================================================
@@ -513,7 +643,7 @@ def check_exit(position, ind, bars, session, today, close_window, is_rank1_fn):
         detail = f"low {day_low:.2f} <= stop {sl_price:.2f} ({STOP_LOSS_PCT:g}%); live price {cmp_:.2f}"
     elif close_window and EXIT_ON_MEAN_REVERSION and ind["pct_dist"] is not None and ind["pct_dist"] >= 0:
         reason, price = "mean_reversion", cmp_
-        detail = f"price back at/above 20DMA ({ind['pct_dist']:+.2f}%)"
+        detail = f"price back at/above {DMA_WINDOW}DMA ({ind['pct_dist']:+.2f}%)"
     elif (close_window and EXIT_ON_EMA_DEATH_CROSS
           and _cross_down(ind["ema_fast_today"], ind["ema_slow_today"],
                           ind["ema_fast_prev"], ind["ema_slow_prev"])):
@@ -565,6 +695,10 @@ def send_telegram(text):
         return False, str(e)
 
 
+def _esc(t):
+    return str(t).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+
+
 def alert_message(ticker, reason, price, pnl_pct, detail, kind="SELL"):
     label = REASON_LABELS.get(reason, reason)
     return (
@@ -572,8 +706,19 @@ def alert_message(ticker, reason, price, pnl_pct, detail, kind="SELL"):
         f"{label}\n\n"
         f"Price: ₹{price:,.2f}\n"
         f"P&amp;L vs avg buy: {pnl_pct:+.2f}%\n"
-        f"Why: {detail}"
+        f"Why: {_esc(detail)}"
     )
+
+
+def buy_message(ticker, slot, price, qty, amount, rank, pct_dist, detail=""):
+    return (
+        f"<b>BUY — {ticker.replace('.NS', '')}</b>  (Slot {slot})\n"
+        f"Rank #{rank}, {pct_dist:+.2f}% vs {DMA_WINDOW}DMA\n\n"
+        f"Price: ~₹{price:,.2f}\n"
+        f"Suggested: {qty} units (~₹{amount:,.0f})\n"
+        f"Place the order before 3:30 PM - the backtest buys at the close.\n"
+        + (f"Note: {_esc(detail)}" if detail else "")
+    ).rstrip()
 
 
 # ==============================================================================
@@ -584,15 +729,16 @@ def alert_message(ticker, reason, price, pnl_pct, detail, kind="SELL"):
 # ==============================================================================
 
 TEST_ALERT_SAMPLES = {
-    "take_profit": (4.20, "+4.20% vs avg buy, target was +4.0%"),
-    "stop_loss": (-15.30, "low 84.70 <= stop 85.00 (-15%); live price 84.70"),
-    "trail_stop": (4.10, "low 104.10 <= trailing stop 104.20 (peak 106.30, -1%); live price 104.10"),
-    "breakeven_stop": (1.00, "+3% was touched earlier; low 100.90 <= breakeven stop 101.00; live price 100.90"),
+    "take_profit": (TAKE_PROFIT_PCT + 0.2, f"+{TAKE_PROFIT_PCT + 0.2:.2f}% vs avg buy, target was +{TAKE_PROFIT_PCT:g}%"),
+    "stop_loss": (STOP_LOSS_PCT - 0.3, f"low 91.70 <= stop 92.00 ({STOP_LOSS_PCT:g}%); live price 91.70"),
+    "trail_stop": (3.10, f"low 103.10 <= trailing stop 103.20 (peak 103.70, -{TRAIL_PCT:g}%); live price 103.10"),
+    "breakeven_stop": (float(BREAKEVEN_STOP_PCT), f"+{BREAKEVEN_TRIGGER_PCT:g}% was touched earlier; low 100.90 <= breakeven stop {100 + BREAKEVEN_STOP_PCT:.2f}; live price 100.90"),
     "trail_rank_lost": (5.20, "ETF is no longer Rank #1 while trailing - exit near close"),
-    "mean_reversion": (1.10, "price back at/above 20DMA (+1.10%)"),
-    "ema_death_cross": (-2.50, "EMA20 crossed below EMA50 (98.40 vs 99.10)"),
-    "max_holding_period": (-1.80, "held 10 days, limit is 10"),
-    "late_hold_ema_exit": (0.60, "held 7 days (>= 6); fast EMA2 crossed below EMA13 (99.40 vs 99.55)"),
+    "mean_reversion": (1.10, f"price back at/above {DMA_WINDOW}DMA (+1.10%)"),
+    "ema_death_cross": (-2.50, f"EMA{EMA_FAST} crossed below EMA{EMA_SLOW} (98.40 vs 99.10)"),
+    "max_holding_period": (-1.80, f"held {MAX_HOLDING_DAYS} days, limit is {MAX_HOLDING_DAYS}"),
+    "late_hold_ema_exit": (0.60, f"held {LATE_HOLD_START_DAY + 1} days (>= {LATE_HOLD_START_DAY}); fast EMA{LATE_HOLD_EMA_FAST} crossed below EMA{LATE_HOLD_EMA_SLOW} (99.40 vs 99.55)"),
+    "buy_signal": (None, "Slot 2: Rank #1 (-3.20% below DMA). Suggested qty 120 (~Rs 12,000)"),
 }
 
 
@@ -607,7 +753,10 @@ def run_test_alert(s, reason):
     pnl_pct, detail = TEST_ALERT_SAMPLES[reason]
     detail = "[TEST - ignore] " + detail
     price = 100.0
-    ok, err = send_telegram(alert_message("TEST.NS", reason, price, pnl_pct, detail))
+    if reason == "buy_signal":
+        ok, err = send_telegram(buy_message("TEST.NS", 2, price, 120, 12000.0, 1, -3.2, detail))
+    else:
+        ok, err = send_telegram(alert_message("TEST.NS", reason, price, pnl_pct, detail))
     alert_id = s["next_alert_id"]
     s["next_alert_id"] += 1
     s["alerts"].append({
@@ -639,6 +788,27 @@ def raise_alert(s, p, reason, price, pnl_pct, detail, kind="SELL"):
     return True
 
 
+def raise_buy_alert(s, sig):
+    """One Telegram + dashboard BUY alert per (day, slot, ticker). If the ranking changes
+    later in the entry window and a different ETF becomes the pick, a new alert is sent."""
+    key = f"{sig['date']}|{sig['slot']}|{sig['ticker']}"
+    if any(a.get("key") == key for a in s["alerts"]):
+        return False
+    detail = (f"Slot {sig['slot']}: Rank #{sig['rank']} ({sig['pct_dist']:+.2f}% vs {DMA_WINDOW}DMA). "
+              f"Suggested qty {sig['qty']} (~₹{sig['amount']:,.0f})")
+    ok, _ = send_telegram(buy_message(sig["ticker"], sig["slot"], sig["price"], sig["qty"],
+                                      sig["amount"], sig["rank"], sig["pct_dist"]))
+    alert_id = s["next_alert_id"]
+    s["next_alert_id"] += 1
+    s["alerts"].append({
+        "id": alert_id, "position_id": -2, "ticker": sig["ticker"], "key": key,
+        "reason": "buy_signal", "price": sig["price"], "pnl_pct": None, "detail": detail,
+        "created_at": datetime.now().isoformat(timespec="seconds"),
+        "seen": False, "telegram_ok": ok,
+    })
+    return True
+
+
 def main():
     now = now_ist()
     today = now.date()
@@ -652,7 +822,7 @@ def main():
         print(f"[scan] {now:%Y-%m-%d %H:%M} IST - market closed / holiday, nothing to do.")
         return
 
-    # Close-based rules (20DMA, EMA, rank, holding days) use the daily CLOSE in the backtest,
+    # Close-based rules (DMA, EMA, rank, holding days) use the daily CLOSE in the backtest,
     # so they are evaluated from CLOSE_RULES_FROM (or when the market is not trading).
     trading_started = trading_today and now.time() >= MARKET_OPEN
     close_window = (not trading_started) or now.time() >= CLOSE_RULES_FROM
@@ -660,6 +830,7 @@ def main():
           f"close_rules={'ON' if close_window else 'off (before ' + CLOSE_RULES_FROM.strftime('%H:%M') + ')'}")
 
     s = load_store()
+    assign_slots(s)
 
     test_reason = os.environ.get("TEST_ALERT", "").strip()
     if test_reason and test_reason != "none":
@@ -747,7 +918,7 @@ def main():
         info = res["info"]
 
         open_rows.append({
-            "id": p["id"], "ticker": p["ticker"],
+            "id": p["id"], "ticker": p["ticker"], "slot": p.get("slot"),
             "display_ticker": p["ticker"].replace(".NS", ""),
             "entry_date": p["entry_date"], "qty": float(p["qty"]),
             "avg_price": float(p["avg_price"]), "note": p.get("note"),
@@ -776,11 +947,38 @@ def main():
             if raise_alert(s, p, reason, res["price"], res["pnl_pct"], detail):
                 new_alerts += 1
 
+    # ---- fresh-entry (BUY) signals - same decision as the backtest's entry block ----
+    pending_exit_ids = {r["id"] for r in open_rows if r["exit_reason"]}
+    entry_window = (trading_today and ENTRY_SIGNAL_FROM <= now.time() <= ENTRY_SIGNAL_UNTIL)
+    today_iso = today.isoformat()
+    meta_sig = s["meta"].get("entry_signals") or {}
+    if entry_window:
+        free_exists = any(sl["status"] == "free" for sl in slot_overview(s, today, pending_exit_ids))
+        need_buy = (len(open_rows) - len(pending_exit_ids)) < MAX_CONCURRENT_POSITIONS and free_exists
+        signals = []
+        if need_buy:
+            rows = rank_cache["rows"] if "rows" in rank_cache else build_universe_ranking()
+            rank_cache["rows"] = rows
+            signals = compute_entry_signals(s, today, pending_exit_ids, rows)
+            if not signals:
+                print("[entry] slot free but no ETF could be ranked - no signal")
+        for sig in signals:
+            if raise_buy_alert(s, sig):
+                new_alerts += 1
+        s["meta"]["entry_signals"] = {"date": today_iso, "signals": signals}
+    elif meta_sig.get("date") != today_iso:
+        s["meta"]["entry_signals"] = {"date": today_iso, "signals": []}
+    entry_signals = (s["meta"].get("entry_signals") or {}).get("signals", [])
+    # a signal is stale once its slot got a position (user already bought)
+    taken = {int(p["slot"]) for p in list_open_positions(s) if p.get("slot")}
+    entry_signals = [g for g in entry_signals if g["slot"] not in taken and g["date"] == today_iso]
+    slots = slot_overview(s, today, pending_exit_ids)
+
     closed_rows = sorted(
         [p for p in s["positions"] if p["status"] == "CLOSED"],
         key=lambda p: (p.get("exit_date") or "", p["id"]), reverse=True)[:50]
     closed = [{
-        "id": p["id"], "display_ticker": p["ticker"].replace(".NS", ""),
+        "id": p["id"], "display_ticker": p["ticker"].replace(".NS", ""), "slot": p.get("slot"),
         "entry_date": p["entry_date"], "exit_date": p.get("exit_date"),
         "exit_price": p.get("exit_price"), "exit_reason": p.get("exit_reason"),
         "exit_label": REASON_LABELS.get(p.get("exit_reason"), p.get("exit_reason")),
@@ -812,7 +1010,13 @@ def main():
             "open_count": len(open_rows), "priced_count": priced, "unpriced_count": unpriced,
             "action_count": sum(1 for p in open_rows if p["exit_reason"]),
         },
+        "slots": slots,
+        "entry_signals": entry_signals,
         "rules": {
+            "dma_window": DMA_WINDOW, "n_slots": N_SLOTS,
+            "max_concurrent": MAX_CONCURRENT_POSITIONS, "settle_t1": SETTLE_T1,
+            "allow_same_etf": ALLOW_SAME_ETF, "initial_capital": INITIAL_CAPITAL,
+            "entry_signal_from": ENTRY_SIGNAL_FROM.strftime("%H:%M"),
             "take_profit_pct": TAKE_PROFIT_PCT, "stop_loss_pct": STOP_LOSS_PCT,
             "max_holding_days": MAX_HOLDING_DAYS, "ema_fast": EMA_FAST, "ema_slow": EMA_SLOW,
             "ema_exit_on": EXIT_ON_EMA_DEATH_CROSS, "mean_reversion_on": EXIT_ON_MEAN_REVERSION,
@@ -834,7 +1038,8 @@ def main():
     with open(STATE_PATH, "w", encoding="utf-8") as f:
         json.dump(state, f, indent=2, ensure_ascii=False, default=str)
 
-    print(f"[scan] checked={len(open_rows)} new_alerts={new_alerts} unpriced={unpriced}")
+    print(f"[scan] checked={len(open_rows)} new_alerts={new_alerts} unpriced={unpriced} "
+          f"buy_signals={len(entry_signals)}")
 
 
 if __name__ == "__main__":

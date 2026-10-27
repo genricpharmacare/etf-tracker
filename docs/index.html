@@ -84,6 +84,15 @@ select:focus{outline:2px solid var(--accent);outline-offset:-1px;border-color:va
 .sheet .acts{margin-top:18px}
 .sheet .acts button{flex:1}
 .sheet .acts button.go{background:var(--accent);border-color:var(--accent);color:#2A1D02;font-weight:600}
+.slots{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-bottom:14px}
+.slot{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:9px 11px;font-size:12px}
+.slot b{display:block;font-size:13px;margin-bottom:2px}
+.slot.free{border-color:var(--up)} .slot.pending_sell{border-color:var(--accent)}
+.slot span{color:var(--muted)}
+.buy{margin-top:10px;padding:10px 12px;border-radius:8px;background:rgba(43,182,115,.12);border:1px solid rgba(43,182,115,.35);font-size:13px}
+.buy b{color:var(--up)} .buy span{display:block;color:var(--muted);font-size:12px;margin-top:2px}
+.buy button{margin-top:8px;width:100%}
+.tag{display:inline-block;font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:5px;padding:0 6px;margin-left:6px;vertical-align:middle}
 .empty{text-align:center;padding:26px 16px;color:var(--muted);font-size:14px;border:1px dashed var(--line);border-radius:var(--radius)}
 .rules{font-size:12px;color:var(--muted);line-height:1.7;padding:14px 0 0}
 .rules b{color:var(--text);font-weight:600}
@@ -100,6 +109,8 @@ select:focus{outline:2px solid var(--accent);outline-offset:-1px;border-color:va
   </header>
 
   <div id="band" class="band"><h2>Loading positions</h2></div>
+  <div id="buys"></div>
+  <div id="slots" class="slots"></div>
 
   <dl class="strip">
     <div><dt>Invested</dt><dd class="num" id="s-inv">—</dd></div>
@@ -136,12 +147,15 @@ select:focus{outline:2px solid var(--accent);outline-offset:-1px;border-color:va
     <input id="f-qty" type="number" inputmode="decimal" step="any" placeholder="120">
     <label for="f-price">Average buy price</label>
     <input id="f-price" type="number" inputmode="decimal" step="any" placeholder="82.40">
-    <div class="hint">Exit rules measure the 4% target against this price.</div>
+    <div class="hint" id="h-target">Exit rules measure the target against this price.</div>
     <label for="f-date">Buy date</label>
     <input id="f-date" type="date">
-    <div class="hint">The 10-day holding limit counts from here.</div>
+    <div class="hint" id="h-hold">The holding limit counts from here.</div>
+    <label for="f-slot">Capital slot</label>
+    <select id="f-slot"><option value="">Auto (first free slot)</option></select>
+    <div class="hint">Capital is split into slots; the next buy signal uses a free slot.</div>
     <label for="f-note">Note (optional)</label>
-    <input id="f-note" placeholder="Rank 1, −3.2% from 20DMA">
+    <input id="f-note" placeholder="Rank 1, −3.2% from DMA">
     <div class="err" id="add-err"></div>
     <div class="acts">
       <button class="ghost" data-close>Cancel</button>
@@ -192,10 +206,11 @@ select:focus{outline:2px solid var(--accent);outline-offset:-1px;border-color:va
       <option value="trail_stop">Trailing stop hit</option>
       <option value="breakeven_stop">Breakeven stop hit</option>
       <option value="trail_rank_lost">Trailing - lost Rank #1</option>
-      <option value="mean_reversion">Back at 20 DMA (mean reversion)</option>
+      <option value="mean_reversion">Back at DMA (mean reversion)</option>
       <option value="ema_death_cross">EMA death cross</option>
       <option value="max_holding_period">Max holding period</option>
       <option value="late_hold_ema_exit">Late-hold EMA death cross</option>
+      <option value="buy_signal">BUY signal (new entry)</option>
     </select>
     <div class="acts">
       <button class="ghost" id="g-test-send">Send test alert</button>
@@ -210,6 +225,8 @@ const money = n => n == null ? '—' : '₹' + Number(n).toLocaleString('en-IN',
 const pct = n => n == null ? '—' : (n >= 0 ? '+' : '') + Number(n).toFixed(2) + '%';
 const cls = n => n == null ? '' : (n >= 0 ? 'up' : 'down');
 let STATE = null, closingId = null, notified = new Set();
+// today's date in IST (YYYY-MM-DD) - avoids UTC off-by-one around midnight
+const todayIST = () => new Date().toLocaleDateString('en-CA', {timeZone: 'Asia/Kolkata'});
 
 // ---- GitHub-backed config ----
 function cfg(){
@@ -303,6 +320,9 @@ $('#meta').textContent = s.last_scan ? 'Checked ' + fmtIST(s.last_scan) : 'Not c
     band.innerHTML = '<h2>No positions yet</h2><p>Add the ETF you bought and this will watch it for you.</p>';
   }
 
+  renderBuys(s);
+  renderSlots(s);
+
   $('#s-inv').textContent = money(sum.invested);
   $('#s-val').textContent = sum.priced_count ? money(sum.value) : '—';
   const pl = $('#s-pnl'); pl.textContent = sum.pnl_pct == null ? '—' : pct(sum.pnl_pct); pl.className = 'num ' + cls(sum.pnl_pct);
@@ -319,8 +339,18 @@ $('#meta').textContent = s.last_scan ? 'Checked ' + fmtIST(s.last_scan) : 'Not c
     ).join('') : '<div class="empty">No closed trades yet.</div>';
 
   const r = s.rules;
+  $('#h-target').textContent = 'Exit rules measure the ' + r.take_profit_pct + '% target against this price.';
+  $('#h-hold').textContent = 'The ' + r.max_holding_days + '-day holding limit counts from here.';
+  const fs = $('#f-slot');
+  if (fs.options.length - 1 !== r.n_slots){
+    fs.innerHTML = '<option value="">Auto (first free slot)</option>'
+      + Array.from({length: r.n_slots}, (_, i) => '<option value="' + (i+1) + '">Slot ' + (i+1) + '</option>').join('');
+  }
   $('#rules').innerHTML =
-    'Exit rules in force: <b>target +' + r.take_profit_pct + '%</b> on average buy price'
+    'Capital: <b>' + r.n_slots + ' slots</b>, max <b>' + r.max_concurrent + '</b> position' + (r.max_concurrent > 1 ? 's' : '') + ' at a time'
+    + (r.settle_t1 ? ' (sale money usable next day)' : '') + (r.allow_same_etf ? '' : ', same ETF never held twice') + '. '
+    + 'Buy signals appear from ' + (r.entry_signal_from || '15:00') + ' IST. '
+    + 'Exit rules in force: <b>target +' + r.take_profit_pct + '%</b> on average buy price'
     + (r.trail_enabled ? ' (if still Rank #1: <b>trail ' + r.trail_pct + '%</b> below peak' + (r.trail_lock_tp ? ', never below target' : '') + ')' : '') + ' · '
     + (r.breakeven_enabled ? '<b>breakeven</b> stop +' + r.breakeven_stop_pct + '% after +' + r.breakeven_trigger_pct + '% · ' : '')
     + '<b>' + r.max_holding_days + '-day</b> holding limit · '
@@ -328,10 +358,29 @@ $('#meta').textContent = s.last_scan ? 'Checked ' + fmtIST(s.last_scan) : 'Not c
     + (r.late_hold_on ? '<b>late-hold EMA ' + r.late_hold_ema_fast + '/' + r.late_hold_ema_slow + '</b> death cross after day ' + r.late_hold_start_day + ' · ' : '')
     + 'stop-loss ' + (r.stop_loss_pct == null ? 'off' : r.stop_loss_pct + '%')
     + '. Scanned every 15 min, 9:15 AM–3:30 PM IST on trading days. Target/stops are checked on every scan (day high/low); '
-    + '20 DMA, EMA, Rank #1 and holding-day rules are checked from ' + (r.close_rules_from || '15:15') + ' (they use the closing price).'
+    + '' + r.dma_window + ' DMA, EMA, Rank #1 and holding-day rules are checked from ' + (r.close_rules_from || '14:30') + ' (they use the closing price).'
     + (s.telegram_configured ? '' : ' Telegram is not set up yet — see Setup.');
 
   maybeNotify(s.alerts);
+}
+
+function renderBuys(s){
+  const sig = s.entry_signals || [];
+  $('#buys').innerHTML = sig.map(g =>
+    '<div class="buy"><b>Buy ' + g.display_ticker + ' — Slot ' + g.slot + '</b>'
+    + '<span>Rank #' + g.rank + ' · ' + pct(g.pct_dist) + ' vs ' + s.rules.dma_window + ' DMA · ~₹' + g.price.toFixed(2)
+    + ' · suggested ' + g.qty + ' units (~' + money(g.amount) + ')</span>'
+    + '<span>Place the order before 3:30 PM IST, then tap below to record it.</span>'
+    + '<button class="small" data-prefill="' + g.display_ticker + '|' + g.qty + '|' + g.price.toFixed(2) + '|' + g.slot + '">Record this buy</button></div>'
+  ).join('');
+}
+
+function renderSlots(s){
+  const lbl = {invested: 'Invested', pending_sell: 'Sell signal', free: 'Free', blocked_t1: 'Free from tomorrow'};
+  $('#slots').innerHTML = (s.slots || []).map(sl =>
+    '<div class="slot ' + sl.status + '"><b>Slot ' + sl.id + ' · ' + lbl[sl.status] + '</b>'
+    + '<span>' + (sl.ticker ? sl.ticker : (sl.cash_est ? '~' + money(sl.cash_est) + ' ready' : '')) + '</span></div>'
+  ).join('');
 }
 
 function card(p){
@@ -343,7 +392,7 @@ function card(p){
     : p.qty + ' @ ₹' + p.avg_price.toFixed(2);
 
   return '<div class="card' + (p.exit_reason ? ' flag' : '') + '">'
-    + '<div class="top"><div><div class="tkr">' + p.display_ticker + '</div><div class="sub num">' + priceLine + '</div></div>'
+    + '<div class="top"><div><div class="tkr">' + p.display_ticker + (p.slot ? '<span class="tag">Slot ' + p.slot + '</span>' : '') + '</div><div class="sub num">' + priceLine + '</div></div>'
       + '<div class="pl">' + (p.cmp
           ? '<div class="big num ' + cls(p.pnl_pct) + '">' + pct(p.pnl_pct) + '</div><div class="small num">' + (p.pnl >= 0 ? '+' : '−') + money(Math.abs(p.pnl)).slice(1) + '</div>'
           : '<div class="big num" style="color:var(--muted)">—</div>') + '</div></div>'
@@ -363,7 +412,7 @@ function maybeNotify(alerts){
   if (!('Notification' in window) || Notification.permission !== 'granted') return;
   alerts.filter(a => !a.seen && !notified.has(a.id)).forEach(a => {
     notified.add(a.id);
-    try{ new Notification((a.reason === 'trail_started' ? 'Hold ' : 'Sell ') + a.display_ticker + ' — ' + a.label, {body: a.detail + '\n' + pct(a.pnl_pct) + ' vs average buy price', tag: 'etf-' + a.id}); }
+    try{ new Notification((a.reason === 'trail_started' ? 'Hold ' : a.reason === 'buy_signal' ? 'Buy ' : 'Sell ') + a.display_ticker + ' — ' + a.label, {body: a.detail + (a.pnl_pct == null ? '' : '\n' + pct(a.pnl_pct) + ' vs average buy price'), tag: 'etf-' + a.id}); }
     catch(e){}
   });
 }
@@ -392,7 +441,7 @@ $('#btn-refresh').onclick = async e => {
 
 $('#btn-add').onclick = () => {
   if (!cfgReady()){ toast('Tap Setup first and save your token'); return; }
-  $('#f-date').value = new Date().toISOString().slice(0,10);
+  $('#f-date').value = todayIST();
   $('#add-err').classList.remove('on');
   openSheet('#sheet-add');
 };
@@ -411,7 +460,7 @@ $('#f-save').onclick = async () => {
     const ticker = normaliseTicker($('#f-ticker').value);
     const qty = parseFloat($('#f-qty').value);
     const avg_price = parseFloat($('#f-price').value);
-    const entry_date = $('#f-date').value || new Date().toISOString().slice(0,10);
+    const entry_date = $('#f-date').value || todayIST();
     if (ticker === '.NS' || !qty || qty <= 0 || !avg_price || avg_price <= 0)
       throw new Error('Check the ticker, quantity and price.');
 
@@ -420,6 +469,7 @@ $('#f-save').onclick = async () => {
     data.next_position_id += 1;
     data.positions.push({
       id: pid, ticker, entry_date, qty, avg_price, status: 'OPEN',
+      slot: $('#f-slot').value ? parseInt($('#f-slot').value) : null,
       exit_date: null, exit_price: null, exit_reason: null, exit_pnl_pct: null,
       note: ($('#f-note').value || '').slice(0,200),
       created_at: new Date().toISOString(),
@@ -432,6 +482,16 @@ $('#f-save').onclick = async () => {
 };
 
 document.addEventListener('click', e => {
+  const pf = e.target.closest('[data-prefill]');
+  if (pf){
+    if (!cfgReady()){ toast('Tap Setup first and save your token'); return; }
+    const [t, q, pr, sl] = pf.dataset.prefill.split('|');
+    $('#f-ticker').value = t; $('#f-qty').value = q; $('#f-price').value = pr;
+    $('#f-slot').value = sl; $('#f-date').value = todayIST();
+    $('#f-note').value = 'buy signal'; $('#add-err').classList.remove('on');
+    openSheet('#sheet-add');
+    return;
+  }
   const c = e.target.closest('[data-close-pos]');
   if (c){
     if (!cfgReady()){ toast('Tap Setup first and save your token'); return; }
@@ -469,7 +529,7 @@ $('#c-save').onclick = async () => {
     if (!row) throw new Error('Position not found.');
     const pnl_pct = (price - row.avg_price) / row.avg_price * 100;
     row.status = 'CLOSED';
-    row.exit_date = new Date().toISOString().slice(0,10);
+    row.exit_date = todayIST();
     row.exit_price = price;
     row.exit_reason = 'manual';
     row.exit_pnl_pct = pnl_pct;
