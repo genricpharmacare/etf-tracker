@@ -54,22 +54,22 @@ MAX_CONCURRENT_POSITIONS = 1    # 1 = one position at a time, 2 = both slots can
 SETTLE_T1 = True                # sell proceeds usable from the NEXT trading day
 ALLOW_SAME_ETF = False          # False = an ETF already held in another slot is skipped
 
-TAKE_PROFIT_PCT = 3.0
-STOP_LOSS_PCT = -8
+TAKE_PROFIT_PCT = 2.0
+STOP_LOSS_PCT = -4
 EXIT_ON_MEAN_REVERSION = True
 MAX_HOLDING_DAYS = 5
 
 # ---- Trailing profit (when TP is touched and the ETF is still Rank #1) ----
 TRAIL_ENABLED = True
-TRAIL_PCT = 0.5       # exit when price falls this % below the peak
+TRAIL_PCT = 0.25       # exit when price falls this % below the peak
 TRAIL_LOCK_TP = True  # stop never goes below the take-profit price
 
 # ---- Breakeven stop ----
 # Once +BREAKEVEN_TRIGGER_PCT% has been touched on an EARLIER day, the stop moves to
 # entry +BREAKEVEN_STOP_PCT% (active from the next session, same as the backtest).
 BREAKEVEN_ENABLED = True
-BREAKEVEN_TRIGGER_PCT = 1.5
-BREAKEVEN_STOP_PCT = 1
+BREAKEVEN_TRIGGER_PCT = 1
+BREAKEVEN_STOP_PCT = 0.75
 
 EXIT_ON_EMA_DEATH_CROSS = True
 EMA_FAST = 5
@@ -80,9 +80,9 @@ EMA_SLOW = 40
 # exited it, a fast EMA(LATE_HOLD_EMA_FAST, LATE_HOLD_EMA_SLOW) death cross exits it
 # early instead of waiting for MAX_HOLDING_DAYS. Close-based, like the backtest.
 LATE_HOLD_EMA_EXIT = True
-LATE_HOLD_START_DAY = 5
-LATE_HOLD_EMA_FAST = 3
-LATE_HOLD_EMA_SLOW = 13
+LATE_HOLD_START_DAY = 2
+LATE_HOLD_EMA_FAST = 4
+LATE_HOLD_EMA_SLOW = 8
 
 # ---- Schedule / market clock (all IST) ----
 IST = timezone(timedelta(hours=5, minutes=30))
