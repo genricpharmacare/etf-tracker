@@ -133,15 +133,40 @@
       "created_at": "2026-10-27T10:05:29",
       "seen": false,
       "telegram_ok": true
+    },
+    {
+      "id": 9,
+      "position_id": -2,
+      "ticker": "MAFANG.NS",
+      "key": "2026-10-30|2|MAFANG.NS",
+      "reason": "buy_signal",
+      "price": 228.60000610351562,
+      "pnl_pct": null,
+      "detail": "Slot 2: Rank #1 (-9.63% vs 10DMA). Suggested qty 43 (~₹9,830)",
+      "created_at": "2026-10-30T09:33:20",
+      "seen": false,
+      "telegram_ok": true
     }
   ],
   "meta": {
-    "last_scan": "2026-10-29T10:25:22",
+    "last_scan": "2026-10-30T09:33:20",
     "entry_signals": {
-      "date": "2026-10-29",
-      "signals": []
+      "date": "2026-10-30",
+      "signals": [
+        {
+          "slot": 2,
+          "ticker": "MAFANG.NS",
+          "display_ticker": "MAFANG",
+          "price": 228.60000610351562,
+          "pct_dist": -9.626763048989467,
+          "rank": 1,
+          "qty": 43,
+          "amount": 9829.800262451172,
+          "date": "2026-10-30"
+        }
+      ]
     }
   },
   "next_position_id": 3,
-  "next_alert_id": 9
+  "next_alert_id": 10
 }
