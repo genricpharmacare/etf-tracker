@@ -149,22 +149,10 @@
     }
   ],
   "meta": {
-    "last_scan": "2026-10-30T10:28:01",
+    "last_scan": "2026-11-02T07:10:02",
     "entry_signals": {
-      "date": "2026-10-30",
-      "signals": [
-        {
-          "slot": 2,
-          "ticker": "MAFANG.NS",
-          "display_ticker": "MAFANG",
-          "price": 228.60000610351562,
-          "pct_dist": -9.626763048989467,
-          "rank": 1,
-          "qty": 43,
-          "amount": 9829.800262451172,
-          "date": "2026-10-30"
-        }
-      ]
+      "date": "2026-11-02",
+      "signals": []
     }
   },
   "next_position_id": 3,
