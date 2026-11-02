@@ -91,7 +91,7 @@ MARKET_CLOSE = dtime(15, 30)
 CLOSE_RULES_FROM = dtime(14, 30)       # close-based rules are evaluated from this time
 ENTRY_SIGNAL_FROM = dtime(15, 0)       # BUY signals are computed from this time ...
 ENTRY_SIGNAL_UNTIL = dtime(15, 29)     # ... until just before the close (still time to place the order)
-SCHEDULE_GATE = (dtime(9, 0), dtime(16, 0))   # scheduled runs outside this window just exit
+SCHEDULE_GATE = (dtime(9, 10), dtime(15, 40))  # automatic runs (cron / external trigger) outside this window just exit
 
 USE_LIVE_PRICE = True
 USE_MASTER_CALENDAR = False
@@ -814,9 +814,12 @@ def main():
     today = now.date()
     holidays = load_holidays()
     trading_today = is_trading_day(today, holidays)
-    scheduled = os.environ.get("GITHUB_EVENT_NAME", "") == "schedule"
+    # "Automatic" = GitHub's own cron OR the external trigger (cron-job.org) which
+    # dispatches the workflow with inputs.source = "cron". Both are market-hours gated.
+    scheduled = (os.environ.get("GITHUB_EVENT_NAME", "") == "schedule"
+                 or os.environ.get("SCAN_SOURCE", "").strip().lower() == "cron")
 
-    # Scheduled runs only act inside the market window on trading days
+    # Automatic runs only act inside the market window on trading days
     # (cron cannot know NSE holidays). Manual runs ("Check now") always scan.
     if scheduled and not (trading_today and SCHEDULE_GATE[0] <= now.time() <= SCHEDULE_GATE[1]):
         print(f"[scan] {now:%Y-%m-%d %H:%M} IST - market closed / holiday, nothing to do.")

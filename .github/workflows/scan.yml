@@ -3,14 +3,18 @@ name: ETF scan
 on:
   schedule:
     # Every 15 minutes, 9:15 AM - 3:30 PM IST, Mon-Fri. GitHub cron is UTC (IST = UTC+5:30):
-    - cron: '45 3 * * 1-5'            # 09:15 IST
-    - cron: '0,15,30,45 4-9 * * 1-5'  # 09:30 ... 15:15 IST
-    - cron: '0 10 * * 1-5'            # 15:30 IST
+    - cron: '52 3 * * 1-5'            # 09:22 IST (backup; odd minutes = less GitHub congestion)
+    - cron: '7,22,37,52 4-9 * * 1-5'  # backup slots, off the busy :00/:15/:30/:45
+    - cron: '7 10 * * 1-5'            # 15:37 IST
     # NSE holidays are skipped inside scan.py (see nse_holidays.json).
   workflow_dispatch:            # lets the dashboard's "Check now" button (or you,
                                  # manually, from the Actions tab) trigger a scan
                                  # on demand instead of waiting for the next slot
     inputs:
+      source:
+        description: 'Leave as manual. cron-job.org sends "cron" here so the run obeys market hours / holidays.'
+        type: string
+        default: manual
       test_alert:
         description: 'Send ONE fake test alert (Telegram + dashboard) for this reason, then scan normally. Leave as none for a normal run.'
         type: choice
@@ -55,6 +59,7 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           TEST_ALERT: ${{ github.event.inputs.test_alert }}
+          SCAN_SOURCE: ${{ github.event.inputs.source }}
         run: |
           git config user.name "etf-tracker-bot"
           git config user.email "actions@users.noreply.github.com"
