@@ -146,15 +146,40 @@
       "created_at": "2026-10-30T09:33:20",
       "seen": false,
       "telegram_ok": true
+    },
+    {
+      "id": 10,
+      "position_id": -2,
+      "ticker": "SILVER360.NS",
+      "key": "2026-11-03|2|SILVER360.NS",
+      "reason": "buy_signal",
+      "price": 171.1999969482422,
+      "pnl_pct": null,
+      "detail": "Slot 2: Rank #1 (-9.58% vs 10DMA). Suggested qty 58 (~₹9,930)",
+      "created_at": "2026-11-03T09:30:53",
+      "seen": false,
+      "telegram_ok": true
     }
   ],
   "meta": {
-    "last_scan": "2026-11-03T09:27:53",
+    "last_scan": "2026-11-03T09:30:53",
     "entry_signals": {
       "date": "2026-11-03",
-      "signals": []
+      "signals": [
+        {
+          "slot": 2,
+          "ticker": "SILVER360.NS",
+          "display_ticker": "SILVER360",
+          "price": 171.1999969482422,
+          "pct_dist": -9.583992966420865,
+          "rank": 1,
+          "qty": 58,
+          "amount": 9929.599822998047,
+          "date": "2026-11-03"
+        }
+      ]
     }
   },
   "next_position_id": 3,
-  "next_alert_id": 10
+  "next_alert_id": 11
 }
