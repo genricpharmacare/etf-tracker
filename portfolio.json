@@ -159,27 +159,40 @@
       "created_at": "2026-11-03T09:30:53",
       "seen": false,
       "telegram_ok": true
+    },
+    {
+      "id": 11,
+      "position_id": -2,
+      "ticker": "SILVERBND.NS",
+      "key": "2026-11-03|2|SILVERBND.NS",
+      "reason": "buy_signal",
+      "price": 174.8800048828125,
+      "pnl_pct": null,
+      "detail": "Slot 2: Rank #1 (-9.58% vs 10DMA). Suggested qty 57 (~₹9,968)",
+      "created_at": "2026-11-03T09:32:33",
+      "seen": false,
+      "telegram_ok": true
     }
   ],
   "meta": {
-    "last_scan": "2026-11-03T09:30:53",
+    "last_scan": "2026-11-03T09:32:33",
     "entry_signals": {
       "date": "2026-11-03",
       "signals": [
         {
           "slot": 2,
-          "ticker": "SILVER360.NS",
-          "display_ticker": "SILVER360",
-          "price": 171.1999969482422,
-          "pct_dist": -9.583992966420865,
+          "ticker": "SILVERBND.NS",
+          "display_ticker": "SILVERBND",
+          "price": 174.8800048828125,
+          "pct_dist": -9.57600646171052,
           "rank": 1,
-          "qty": 58,
-          "amount": 9929.599822998047,
+          "qty": 57,
+          "amount": 9968.160278320312,
           "date": "2026-11-03"
         }
       ]
     }
   },
   "next_position_id": 3,
-  "next_alert_id": 11
+  "next_alert_id": 12
 }
