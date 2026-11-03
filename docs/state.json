@@ -1,41 +1,17 @@
 {
-  "open_positions": [
+  "open_positions": [],
+  "closed_positions": [
     {
       "id": 2,
-      "ticker": "GROWWHOSPI.NS",
-      "slot": 1,
       "display_ticker": "GROWWHOSPI",
+      "slot": 1,
       "entry_date": "2026-10-16",
-      "qty": 215.0,
-      "avg_price": 46.9,
-      "note": "rank 1 on 6 oct 2026",
-      "cmp": 47.15999984741211,
-      "price_source": "live",
-      "price_error": null,
-      "price_date": "2026-11-03",
-      "dma": 44.990000534057614,
-      "pct_dist": 4.823292481874493,
-      "ema_fast": 46.05626227674972,
-      "ema_slow": 47.81792640072723,
-      "invested": 10083.5,
-      "value": 10139.399967193604,
-      "pnl": 55.899967193603516,
-      "pnl_pct": 0.5543706767848844,
-      "days_held": 18,
-      "days_left": 0,
-      "tp_price": 47.838,
-      "sl_price": 45.023999999999994,
-      "be_price": 47.25175,
-      "be_armed": true,
-      "trailing": false,
-      "trail_stop": null,
-      "trail_since": null,
-      "exit_reason": "breakeven_stop",
-      "exit_label": "Breakeven stop hit (entry +0.75%)",
-      "exit_detail": "+1% was touched earlier; low 46.79 <= breakeven stop 47.25; live price 47.16"
-    }
-  ],
-  "closed_positions": [
+      "exit_date": "2026-11-03",
+      "exit_price": 47.35,
+      "exit_reason": "manual",
+      "exit_label": "manual",
+      "pnl_pct": 0.9594882729211149
+    },
     {
       "id": 1,
       "display_ticker": "MONQ50",
@@ -72,7 +48,7 @@
       "pnl_pct": 1.0000000000000027,
       "detail": "+1.5% was touched earlier; low 44.15 <= breakeven stop 47.37; live price 45.31",
       "created_at": "2026-10-27T10:05:29",
-      "seen": false,
+      "seen": true,
       "telegram_ok": true
     },
     {
@@ -85,7 +61,7 @@
       "pnl_pct": -5.650319829424304,
       "detail": "held 10 days, limit is 10",
       "created_at": "2026-10-26T09:22:15",
-      "seen": false,
+      "seen": true,
       "telegram_ok": true
     },
     {
@@ -94,7 +70,7 @@
       "display_ticker": "TEST",
       "reason": "take_profit",
       "label": "Target hit",
-      "price": 100.0,
+      "price": 100,
       "pnl_pct": 4.2,
       "detail": "[TEST - ignore] +4.20% vs avg buy, target was +4.0%",
       "created_at": "2026-10-16T06:17:46",
@@ -168,23 +144,23 @@
     }
   ],
   "summary": {
-    "invested": 10083.5,
-    "priced_invested": 10083.5,
-    "value": 10139.399967193604,
-    "pnl": 55.899967193603516,
-    "pnl_pct": 0.5543706767848814,
-    "open_count": 1,
-    "priced_count": 1,
+    "invested": 0.0,
+    "priced_invested": 0,
+    "value": 0.0,
+    "pnl": 0.0,
+    "pnl_pct": null,
+    "open_count": 0,
+    "priced_count": 0,
     "unpriced_count": 0,
-    "action_count": 1
+    "action_count": 0
   },
   "slots": [
     {
       "id": 1,
-      "status": "pending_sell",
-      "ticker": "GROWWHOSPI",
-      "position_id": 2,
-      "cash_est": null
+      "status": "blocked_t1",
+      "ticker": null,
+      "position_id": null,
+      "cash_est": 10178.3157525
     },
     {
       "id": 2,
@@ -222,7 +198,7 @@
     "late_hold_ema_slow": 8,
     "close_rules_from": "14:30"
   },
-  "last_scan": "2026-11-03T09:15:37",
+  "last_scan": "2026-11-03T09:27:32",
   "telegram_configured": true,
-  "server_time": "2026-11-03T09:15:37"
+  "server_time": "2026-11-03T09:27:32"
 }
