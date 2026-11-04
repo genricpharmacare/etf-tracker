@@ -9,18 +9,18 @@
       "qty": 45.0,
       "avg_price": 223.55,
       "note": "buy signal rank #1",
-      "cmp": 221.72000122070312,
+      "cmp": 223.8300018310547,
       "price_source": "live",
       "price_error": null,
       "price_date": "2026-11-04",
-      "dma": 240.20799713134767,
-      "pct_dist": -7.696661281653815,
-      "ema_fast": 228.80137416827074,
-      "ema_slow": 243.47900028669272,
+      "dma": 240.41899719238282,
+      "pct_dist": -6.900035169872059,
+      "ema_fast": 229.50470770505459,
+      "ema_slow": 243.58192714573426,
       "invested": 10059.75,
-      "value": 9977.40005493164,
-      "pnl": -82.34994506835938,
-      "pnl_pct": -0.818608266292501,
+      "value": 10072.350082397461,
+      "pnl": 12.600082397460938,
+      "pnl_pct": 0.12525244064176969,
       "days_held": 0,
       "days_left": 5,
       "tp_price": 228.02100000000002,
@@ -32,7 +32,7 @@
       "trail_since": null,
       "exit_reason": "stop_loss",
       "exit_label": "Stop-loss hit",
-      "exit_detail": "low 207.27 <= stop 214.61 (-4%); live price 221.72"
+      "exit_detail": "low 207.27 <= stop 214.61 (-4%); live price 223.83"
     }
   ],
   "closed_positions": [
@@ -259,9 +259,9 @@
   "summary": {
     "invested": 10059.75,
     "priced_invested": 10059.75,
-    "value": 9977.40005493164,
-    "pnl": -82.34994506835938,
-    "pnl_pct": -0.8186082662924961,
+    "value": 10072.350082397461,
+    "pnl": 12.600082397460938,
+    "pnl_pct": 0.12525244064177476,
     "open_count": 1,
     "priced_count": 1,
     "unpriced_count": 0,
@@ -288,11 +288,11 @@
       "slot": 2,
       "ticker": "MAFANG.NS",
       "display_ticker": "MAFANG",
-      "price": 221.72999572753906,
-      "pct_dist": -7.692884578609706,
+      "price": 223.8300018310547,
+      "pct_dist": -6.900035169872059,
       "rank": 1,
-      "qty": 45,
-      "amount": 9977.849807739258,
+      "qty": 44,
+      "amount": 9848.520080566406,
       "date": "2026-11-04"
     }
   ],
@@ -323,7 +323,7 @@
     "late_hold_ema_slow": 8,
     "close_rules_from": "14:30"
   },
-  "last_scan": "2026-11-04T09:44:39",
+  "last_scan": "2026-11-04T09:45:45",
   "telegram_configured": true,
-  "server_time": "2026-11-04T09:44:39"
+  "server_time": "2026-11-04T09:45:45"
 }
