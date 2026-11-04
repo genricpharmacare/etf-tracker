@@ -35,6 +35,21 @@
         "2026-10-16"
       ],
       "slot": 1
+    },
+    {
+      "id": 3,
+      "ticker": "MAFANG.NS",
+      "entry_date": "2026-11-04",
+      "qty": 45,
+      "avg_price": 223.55,
+      "status": "OPEN",
+      "slot": 1,
+      "exit_date": null,
+      "exit_price": null,
+      "exit_reason": null,
+      "exit_pnl_pct": null,
+      "note": "buy signal rank #1",
+      "created_at": "2026-11-04T09:43:31.562Z"
     }
   ],
   "alerts": [
@@ -219,6 +234,6 @@
       ]
     }
   },
-  "next_position_id": 3,
+  "next_position_id": 4,
   "next_alert_id": 14
 }
