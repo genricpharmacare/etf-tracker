@@ -196,7 +196,7 @@
   "slots": [
     {
       "id": 1,
-      "status": "blocked_t1",
+      "status": "free",
       "ticker": null,
       "position_id": null,
       "cash_est": 10178.3157525
@@ -209,19 +209,7 @@
       "cash_est": 10000.0
     }
   ],
-  "entry_signals": [
-    {
-      "slot": 2,
-      "ticker": "MAFANG.NS",
-      "display_ticker": "MAFANG",
-      "price": 216.3800048828125,
-      "pct_dist": -9.719032042674288,
-      "rank": 1,
-      "qty": 46,
-      "amount": 9953.480224609375,
-      "date": "2026-11-03"
-    }
-  ],
+  "entry_signals": [],
   "rules": {
     "dma_window": 10,
     "n_slots": 2,
@@ -249,7 +237,7 @@
     "late_hold_ema_slow": 8,
     "close_rules_from": "14:30"
   },
-  "last_scan": "2026-11-03T10:01:00",
+  "last_scan": "2026-11-04T03:45:26",
   "telegram_configured": true,
-  "server_time": "2026-11-03T10:01:00"
+  "server_time": "2026-11-04T03:45:26"
 }
