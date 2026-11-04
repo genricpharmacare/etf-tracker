@@ -1,5 +1,40 @@
 {
-  "open_positions": [],
+  "open_positions": [
+    {
+      "id": 3,
+      "ticker": "MAFANG.NS",
+      "slot": 1,
+      "display_ticker": "MAFANG",
+      "entry_date": "2026-11-04",
+      "qty": 45.0,
+      "avg_price": 223.55,
+      "note": "buy signal rank #1",
+      "cmp": 221.72000122070312,
+      "price_source": "live",
+      "price_error": null,
+      "price_date": "2026-11-04",
+      "dma": 240.20799713134767,
+      "pct_dist": -7.696661281653815,
+      "ema_fast": 228.80137416827074,
+      "ema_slow": 243.47900028669272,
+      "invested": 10059.75,
+      "value": 9977.40005493164,
+      "pnl": -82.34994506835938,
+      "pnl_pct": -0.818608266292501,
+      "days_held": 0,
+      "days_left": 5,
+      "tp_price": 228.02100000000002,
+      "sl_price": 214.608,
+      "be_price": 225.226625,
+      "be_armed": false,
+      "trailing": false,
+      "trail_stop": null,
+      "trail_since": null,
+      "exit_reason": "stop_loss",
+      "exit_label": "Stop-loss hit",
+      "exit_detail": "low 207.27 <= stop 214.61 (-4%); live price 221.72"
+    }
+  ],
   "closed_positions": [
     {
       "id": 2,
@@ -25,6 +60,32 @@
     }
   ],
   "alerts": [
+    {
+      "id": 15,
+      "position_id": -2,
+      "display_ticker": "MAFANG",
+      "reason": "buy_signal",
+      "label": "Buy signal (rank entry)",
+      "price": 221.72999572753906,
+      "pnl_pct": null,
+      "detail": "Slot 2: Rank #1 (-7.69% vs 10DMA). Suggested qty 45 (~₹9,978)",
+      "created_at": "2026-11-04T09:44:39",
+      "seen": false,
+      "telegram_ok": true
+    },
+    {
+      "id": 14,
+      "position_id": 3,
+      "display_ticker": "MAFANG",
+      "reason": "stop_loss",
+      "label": "Stop-loss hit",
+      "price": 214.608,
+      "pnl_pct": -4.000000000000003,
+      "detail": "low 207.27 <= stop 214.61 (-4%); live price 221.72",
+      "created_at": "2026-11-04T09:44:35",
+      "seen": false,
+      "telegram_ok": true
+    },
     {
       "id": 13,
       "position_id": -2,
@@ -196,23 +257,23 @@
     }
   ],
   "summary": {
-    "invested": 0.0,
-    "priced_invested": 0,
-    "value": 0.0,
-    "pnl": 0.0,
-    "pnl_pct": null,
-    "open_count": 0,
-    "priced_count": 0,
+    "invested": 10059.75,
+    "priced_invested": 10059.75,
+    "value": 9977.40005493164,
+    "pnl": -82.34994506835938,
+    "pnl_pct": -0.8186082662924961,
+    "open_count": 1,
+    "priced_count": 1,
     "unpriced_count": 0,
-    "action_count": 0
+    "action_count": 1
   },
   "slots": [
     {
       "id": 1,
-      "status": "free",
-      "ticker": null,
-      "position_id": null,
-      "cash_est": 10178.3157525
+      "status": "pending_sell",
+      "ticker": "MAFANG",
+      "position_id": 3,
+      "cash_est": null
     },
     {
       "id": 2,
@@ -224,14 +285,14 @@
   ],
   "entry_signals": [
     {
-      "slot": 1,
+      "slot": 2,
       "ticker": "MAFANG.NS",
       "display_ticker": "MAFANG",
-      "price": 223.17999267578125,
-      "pct_dist": -7.145295633567114,
+      "price": 221.72999572753906,
+      "pct_dist": -7.692884578609706,
       "rank": 1,
       "qty": 45,
-      "amount": 10043.099670410156,
+      "amount": 9977.849807739258,
       "date": "2026-11-04"
     }
   ],
@@ -262,7 +323,7 @@
     "late_hold_ema_slow": 8,
     "close_rules_from": "14:30"
   },
-  "last_scan": "2026-11-04T09:30:47",
+  "last_scan": "2026-11-04T09:44:39",
   "telegram_configured": true,
-  "server_time": "2026-11-04T09:30:47"
+  "server_time": "2026-11-04T09:44:39"
 }
