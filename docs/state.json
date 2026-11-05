@@ -9,20 +9,20 @@
       "qty": 45.0,
       "avg_price": 223.55,
       "note": "buy signal rank #1",
-      "cmp": 226.0,
+      "cmp": 230.42999267578125,
       "price_source": "live",
       "price_error": null,
-      "price_date": "2026-11-04",
-      "dma": 235.4719970703125,
-      "pct_dist": -4.022557751308386,
-      "ema_fast": 226.12758237194612,
-      "ema_slow": 242.26304658869685,
+      "price_date": "2026-11-05",
+      "dma": 235.9149963378906,
+      "pct_dist": -2.324991521205984,
+      "ema_fast": 227.60424659720655,
+      "ema_slow": 242.480539347315,
       "invested": 10059.75,
-      "value": 10170.0,
-      "pnl": 110.25,
-      "pnl_pct": 1.0959516886602498,
-      "days_held": 0,
-      "days_left": 5,
+      "value": 10369.349670410156,
+      "pnl": 309.59967041015625,
+      "pnl_pct": 3.077607996323524,
+      "days_held": 1,
+      "days_left": 4,
       "tp_price": 228.02100000000002,
       "sl_price": 214.608,
       "be_price": 225.226625,
@@ -30,9 +30,9 @@
       "trailing": false,
       "trail_stop": null,
       "trail_since": null,
-      "exit_reason": "stop_loss",
-      "exit_label": "Stop-loss hit",
-      "exit_detail": "low 207.27 <= stop 214.61 (-4%); live price 226.00"
+      "exit_reason": "take_profit",
+      "exit_label": "Target hit",
+      "exit_detail": "target 228.02 (+2%) touched, day high 230.43; live price 230.43"
     }
   ],
   "closed_positions": [
@@ -60,6 +60,19 @@
     }
   ],
   "alerts": [
+    {
+      "id": 16,
+      "position_id": 3,
+      "display_ticker": "MAFANG",
+      "reason": "take_profit",
+      "label": "Target hit",
+      "price": 228.02100000000002,
+      "pnl_pct": 2.0000000000000013,
+      "detail": "target 228.02 (+2%) touched, day high 230.43; live price 230.43",
+      "created_at": "2026-11-05T03:45:39",
+      "seen": false,
+      "telegram_ok": true
+    },
     {
       "id": 15,
       "position_id": -2,
@@ -259,9 +272,9 @@
   "summary": {
     "invested": 10059.75,
     "priced_invested": 10059.75,
-    "value": 10170.0,
-    "pnl": 110.25,
-    "pnl_pct": 1.095951688660255,
+    "value": 10369.349670410156,
+    "pnl": 309.59967041015625,
+    "pnl_pct": 3.0776079963235294,
     "open_count": 1,
     "priced_count": 1,
     "unpriced_count": 0,
@@ -283,19 +296,7 @@
       "cash_est": 10000.0
     }
   ],
-  "entry_signals": [
-    {
-      "slot": 2,
-      "ticker": "MAFANG.NS",
-      "display_ticker": "MAFANG",
-      "price": 223.8300018310547,
-      "pct_dist": -6.900035169872059,
-      "rank": 1,
-      "qty": 44,
-      "amount": 9848.520080566406,
-      "date": "2026-11-04"
-    }
-  ],
+  "entry_signals": [],
   "rules": {
     "dma_window": 10,
     "n_slots": 2,
@@ -323,7 +324,7 @@
     "late_hold_ema_slow": 8,
     "close_rules_from": "14:30"
   },
-  "last_scan": "2026-11-04T10:00:47",
+  "last_scan": "2026-11-05T03:45:39",
   "telegram_configured": true,
-  "server_time": "2026-11-04T10:00:47"
+  "server_time": "2026-11-05T03:45:39"
 }
