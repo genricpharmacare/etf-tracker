@@ -264,27 +264,40 @@
       "created_at": "2026-11-05T09:30:47",
       "seen": false,
       "telegram_ok": true
+    },
+    {
+      "id": 18,
+      "position_id": -2,
+      "ticker": "AONESILVER.NS",
+      "key": "2026-11-05|2|AONESILVER.NS",
+      "reason": "buy_signal",
+      "price": 7.130000114440918,
+      "pnl_pct": null,
+      "detail": "Slot 2: Rank #1 (-1.16% vs 10DMA). Suggested qty 1402 (~₹9,996)",
+      "created_at": "2026-11-05T09:45:38",
+      "seen": false,
+      "telegram_ok": true
     }
   ],
   "meta": {
-    "last_scan": "2026-11-05T09:30:47",
+    "last_scan": "2026-11-05T09:45:38",
     "entry_signals": {
       "date": "2026-11-05",
       "signals": [
         {
           "slot": 2,
-          "ticker": "SILVERCASE.NS",
-          "display_ticker": "SILVERCASE",
-          "price": 18.790000915527344,
-          "pct_dist": -0.9070749163815015,
+          "ticker": "AONESILVER.NS",
+          "display_ticker": "AONESILVER",
+          "price": 7.130000114440918,
+          "pct_dist": -1.1644007813017172,
           "rank": 1,
-          "qty": 532,
-          "amount": 9996.280487060547,
+          "qty": 1402,
+          "amount": 9996.260160446167,
           "date": "2026-11-05"
         }
       ]
     }
   },
   "next_position_id": 4,
-  "next_alert_id": 18
+  "next_alert_id": 19
 }
