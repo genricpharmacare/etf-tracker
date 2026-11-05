@@ -65,7 +65,8 @@
       "exit_reason": null,
       "exit_pnl_pct": null,
       "note": "buy signal",
-      "created_at": "2026-11-05T09:46:24.190Z"
+      "created_at": "2026-11-05T09:46:24.190Z",
+      "trade_start": "2026-11-05"
     }
   ],
   "alerts": [
@@ -295,22 +296,10 @@
     }
   ],
   "meta": {
-    "last_scan": "2026-11-05T09:45:38",
+    "last_scan": "2026-11-05T09:46:44",
     "entry_signals": {
       "date": "2026-11-05",
-      "signals": [
-        {
-          "slot": 2,
-          "ticker": "AONESILVER.NS",
-          "display_ticker": "AONESILVER",
-          "price": 7.130000114440918,
-          "pct_dist": -1.1644007813017172,
-          "rank": 1,
-          "qty": 1402,
-          "amount": 9996.260160446167,
-          "date": "2026-11-05"
-        }
-      ]
+      "signals": []
     }
   },
   "next_position_id": 5,

@@ -1,5 +1,40 @@
 {
-  "open_positions": [],
+  "open_positions": [
+    {
+      "id": 4,
+      "ticker": "SILVERCASE.NS",
+      "slot": 2,
+      "display_ticker": "SILVERCASE",
+      "entry_date": "2026-11-05",
+      "qty": 532.0,
+      "avg_price": 18.79,
+      "note": "buy signal",
+      "cmp": 18.799999237060547,
+      "price_source": "live",
+      "price_error": null,
+      "price_date": "2026-11-05",
+      "dma": 18.963000297546387,
+      "pct_dist": -0.8595742125623995,
+      "ema_fast": 18.525253312733007,
+      "ema_slow": 21.035037446659583,
+      "invested": 9996.279999999999,
+      "value": 10001.599594116211,
+      "pnl": 5.319594116212102,
+      "pnl_pct": 0.053215737416432825,
+      "days_held": 0,
+      "days_left": 5,
+      "tp_price": 19.1658,
+      "sl_price": 18.0384,
+      "be_price": 18.930925000000002,
+      "be_armed": false,
+      "trailing": false,
+      "trail_stop": null,
+      "trail_since": null,
+      "exit_reason": null,
+      "exit_label": null,
+      "exit_detail": null
+    }
+  ],
   "closed_positions": [
     {
       "id": 3,
@@ -272,13 +307,13 @@
     }
   ],
   "summary": {
-    "invested": 0.0,
-    "priced_invested": 0,
-    "value": 0.0,
-    "pnl": 0.0,
-    "pnl_pct": null,
-    "open_count": 0,
-    "priced_count": 0,
+    "invested": 9996.279999999999,
+    "priced_invested": 9996.279999999999,
+    "value": 10001.599594116211,
+    "pnl": 5.319594116212102,
+    "pnl_pct": 0.05321573741643994,
+    "open_count": 1,
+    "priced_count": 1,
     "unpriced_count": 0,
     "action_count": 0
   },
@@ -292,25 +327,13 @@
     },
     {
       "id": 2,
-      "status": "free",
-      "ticker": null,
-      "position_id": null,
-      "cash_est": 10000.0
+      "status": "invested",
+      "ticker": "SILVERCASE",
+      "position_id": 4,
+      "cash_est": null
     }
   ],
-  "entry_signals": [
-    {
-      "slot": 2,
-      "ticker": "AONESILVER.NS",
-      "display_ticker": "AONESILVER",
-      "price": 7.130000114440918,
-      "pct_dist": -1.1644007813017172,
-      "rank": 1,
-      "qty": 1402,
-      "amount": 9996.260160446167,
-      "date": "2026-11-05"
-    }
-  ],
+  "entry_signals": [],
   "rules": {
     "dma_window": 10,
     "n_slots": 2,
@@ -338,7 +361,7 @@
     "late_hold_ema_slow": 8,
     "close_rules_from": "14:30"
   },
-  "last_scan": "2026-11-05T09:45:38",
+  "last_scan": "2026-11-05T09:46:44",
   "telegram_configured": true,
-  "server_time": "2026-11-05T09:45:38"
+  "server_time": "2026-11-05T09:46:44"
 }
