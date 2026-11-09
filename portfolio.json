@@ -293,15 +293,27 @@
       "created_at": "2026-11-05T09:45:38",
       "seen": false,
       "telegram_ok": true
+    },
+    {
+      "id": 19,
+      "position_id": 4,
+      "ticker": "SILVERCASE.NS",
+      "reason": "mean_reversion",
+      "price": 18.649999618530273,
+      "pnl_pct": -0.7450791988809246,
+      "detail": "price back at/above 10DMA (+0.11%)",
+      "created_at": "2026-11-09T10:00:50",
+      "seen": false,
+      "telegram_ok": true
     }
   ],
   "meta": {
-    "last_scan": "2026-11-09T09:45:27",
+    "last_scan": "2026-11-09T10:00:50",
     "entry_signals": {
       "date": "2026-11-09",
       "signals": []
     }
   },
   "next_position_id": 5,
-  "next_alert_id": 19
+  "next_alert_id": 20
 }

@@ -9,18 +9,18 @@
       "qty": 532.0,
       "avg_price": 18.79,
       "note": "buy signal",
-      "cmp": 18.6200008392334,
+      "cmp": 18.649999618530273,
       "price_source": "live",
       "price_error": null,
       "price_date": "2026-11-09",
-      "dma": 18.62600040435791,
-      "pct_dist": -0.03221070006584992,
-      "ema_fast": 18.565013725653472,
-      "ema_slow": 20.693312740865206,
+      "dma": 18.6290002822876,
+      "pct_dist": 0.11272390318572527,
+      "ema_fast": 18.575013318752433,
+      "ema_slow": 20.694776095952857,
       "invested": 9996.279999999999,
-      "value": 9905.840446472168,
-      "pnl": -90.43955352783087,
-      "pnl_pct": -0.9047320956178856,
+      "value": 9921.799797058105,
+      "pnl": -74.48020294189337,
+      "pnl_pct": -0.7450791988809246,
       "days_held": 4,
       "days_left": 1,
       "tp_price": 19.1658,
@@ -30,9 +30,9 @@
       "trailing": false,
       "trail_stop": null,
       "trail_since": null,
-      "exit_reason": null,
-      "exit_label": null,
-      "exit_detail": null
+      "exit_reason": "mean_reversion",
+      "exit_label": "Back at 10 DMA",
+      "exit_detail": "price back at/above 10DMA (+0.11%)"
     }
   ],
   "closed_positions": [
@@ -71,6 +71,19 @@
     }
   ],
   "alerts": [
+    {
+      "id": 19,
+      "position_id": 4,
+      "display_ticker": "SILVERCASE",
+      "reason": "mean_reversion",
+      "label": "Back at 10 DMA",
+      "price": 18.649999618530273,
+      "pnl_pct": -0.7450791988809246,
+      "detail": "price back at/above 10DMA (+0.11%)",
+      "created_at": "2026-11-09T10:00:50",
+      "seen": false,
+      "telegram_ok": true
+    },
     {
       "id": 18,
       "position_id": -2,
@@ -309,13 +322,13 @@
   "summary": {
     "invested": 9996.279999999999,
     "priced_invested": 9996.279999999999,
-    "value": 9905.840446472168,
-    "pnl": -90.43955352783087,
-    "pnl_pct": -0.9047320956178786,
+    "value": 9921.799797058105,
+    "pnl": -74.48020294189337,
+    "pnl_pct": -0.7450791988809174,
     "open_count": 1,
     "priced_count": 1,
     "unpriced_count": 0,
-    "action_count": 0
+    "action_count": 1
   },
   "slots": [
     {
@@ -327,7 +340,7 @@
     },
     {
       "id": 2,
-      "status": "invested",
+      "status": "pending_sell",
       "ticker": "SILVERCASE",
       "position_id": 4,
       "cash_est": null
@@ -361,7 +374,7 @@
     "late_hold_ema_slow": 8,
     "close_rules_from": "14:30"
   },
-  "last_scan": "2026-11-09T09:45:27",
+  "last_scan": "2026-11-09T10:00:50",
   "telegram_configured": true,
-  "server_time": "2026-11-09T09:45:27"
+  "server_time": "2026-11-09T10:00:50"
 }
