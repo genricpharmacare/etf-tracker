@@ -9,20 +9,20 @@
       "qty": 532.0,
       "avg_price": 18.79,
       "note": "buy signal",
-      "cmp": 18.649999618530273,
+      "cmp": 18.610000610351562,
       "price_source": "live",
       "price_error": null,
       "price_date": "2026-11-09",
-      "dma": 18.6290002822876,
-      "pct_dist": 0.11272390318572527,
-      "ema_fast": 18.575013318752433,
-      "ema_slow": 20.694776095952857,
+      "dma": 18.625000381469725,
+      "pct_dist": -0.0805356822064075,
+      "ema_fast": 18.561680316026195,
+      "ema_slow": 20.692824924822187,
       "invested": 9996.279999999999,
-      "value": 9921.799797058105,
-      "pnl": -74.48020294189337,
-      "pnl_pct": -0.7450791988809246,
-      "days_held": 4,
-      "days_left": 1,
+      "value": 9900.520324707031,
+      "pnl": -95.75967529296759,
+      "pnl_pct": -0.9579531114871562,
+      "days_held": 5,
+      "days_left": 0,
       "tp_price": 19.1658,
       "sl_price": 18.0384,
       "be_price": 18.930925000000002,
@@ -30,9 +30,9 @@
       "trailing": false,
       "trail_stop": null,
       "trail_since": null,
-      "exit_reason": "mean_reversion",
-      "exit_label": "Back at 10 DMA",
-      "exit_detail": "price back at/above 10DMA (+0.11%)"
+      "exit_reason": "max_holding_period",
+      "exit_label": "Held 5 days",
+      "exit_detail": "held 5 days, limit is 5"
     }
   ],
   "closed_positions": [
@@ -71,6 +71,19 @@
     }
   ],
   "alerts": [
+    {
+      "id": 20,
+      "position_id": 4,
+      "display_ticker": "SILVERCASE",
+      "reason": "max_holding_period",
+      "label": "Held 5 days",
+      "price": 18.610000610351562,
+      "pnl_pct": -0.9579531114871562,
+      "detail": "held 5 days, limit is 5",
+      "created_at": "2026-11-10T04:30:31",
+      "seen": false,
+      "telegram_ok": true
+    },
     {
       "id": 19,
       "position_id": 4,
@@ -322,9 +335,9 @@
   "summary": {
     "invested": 9996.279999999999,
     "priced_invested": 9996.279999999999,
-    "value": 9921.799797058105,
-    "pnl": -74.48020294189337,
-    "pnl_pct": -0.7450791988809174,
+    "value": 9900.520324707031,
+    "pnl": -95.75967529296759,
+    "pnl_pct": -0.9579531114871491,
     "open_count": 1,
     "priced_count": 1,
     "unpriced_count": 0,
@@ -374,7 +387,7 @@
     "late_hold_ema_slow": 8,
     "close_rules_from": "14:30"
   },
-  "last_scan": "2026-11-09T10:00:50",
+  "last_scan": "2026-11-10T04:30:31",
   "telegram_configured": true,
-  "server_time": "2026-11-09T10:00:50"
+  "server_time": "2026-11-10T04:30:31"
 }

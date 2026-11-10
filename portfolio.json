@@ -305,15 +305,27 @@
       "created_at": "2026-11-09T10:00:50",
       "seen": false,
       "telegram_ok": true
+    },
+    {
+      "id": 20,
+      "position_id": 4,
+      "ticker": "SILVERCASE.NS",
+      "reason": "max_holding_period",
+      "price": 18.610000610351562,
+      "pnl_pct": -0.9579531114871562,
+      "detail": "held 5 days, limit is 5",
+      "created_at": "2026-11-10T04:30:31",
+      "seen": false,
+      "telegram_ok": true
     }
   ],
   "meta": {
-    "last_scan": "2026-11-09T10:00:50",
+    "last_scan": "2026-11-10T04:30:31",
     "entry_signals": {
-      "date": "2026-11-09",
+      "date": "2026-11-10",
       "signals": []
     }
   },
   "next_position_id": 5,
-  "next_alert_id": 20
+  "next_alert_id": 21
 }
