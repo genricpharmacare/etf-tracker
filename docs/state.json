@@ -9,18 +9,18 @@
       "qty": 532.0,
       "avg_price": 18.79,
       "note": "buy signal",
-      "cmp": 18.6299991607666,
+      "cmp": 18.670000076293945,
       "price_source": "live",
       "price_error": null,
       "price_date": "2026-11-11",
-      "dma": 18.56800022125244,
-      "pct_dist": 0.3339020830213005,
-      "ema_fast": 18.584453264272998,
-      "ema_slow": 20.592199277795086,
+      "dma": 18.572000312805176,
+      "pct_dist": 0.5276747891351216,
+      "ema_fast": 18.59778690278211,
+      "ema_slow": 20.59415054196715,
       "invested": 9996.279999999999,
-      "value": 9911.159553527832,
-      "pnl": -85.1204464721668,
-      "pnl_pct": -0.8515212306194656,
+      "value": 9932.440040588379,
+      "pnl": -63.83995941161993,
+      "pnl_pct": -0.6386371671423834,
       "days_held": 6,
       "days_left": 0,
       "tp_price": 19.1658,
@@ -32,7 +32,7 @@
       "trail_since": null,
       "exit_reason": "mean_reversion",
       "exit_label": "Back at 10 DMA",
-      "exit_detail": "price back at/above 10DMA (+0.33%)"
+      "exit_detail": "price back at/above 10DMA (+0.53%)"
     }
   ],
   "closed_positions": [
@@ -71,6 +71,19 @@
     }
   ],
   "alerts": [
+    {
+      "id": 21,
+      "position_id": -2,
+      "display_ticker": "IVZINGOLD",
+      "reason": "buy_signal",
+      "label": "Buy signal (rank entry)",
+      "price": 121.19999694824219,
+      "pnl_pct": null,
+      "detail": "Slot 1: Rank #1 (-0.68% vs 10DMA). Suggested qty 88 (~₹10,666)",
+      "created_at": "2026-11-11T09:30:45",
+      "seen": false,
+      "telegram_ok": true
+    },
     {
       "id": 20,
       "position_id": 4,
@@ -335,9 +348,9 @@
   "summary": {
     "invested": 9996.279999999999,
     "priced_invested": 9996.279999999999,
-    "value": 9911.159553527832,
-    "pnl": -85.1204464721668,
-    "pnl_pct": -0.8515212306194586,
+    "value": 9932.440040588379,
+    "pnl": -63.83995941161993,
+    "pnl_pct": -0.6386371671423763,
     "open_count": 1,
     "priced_count": 1,
     "unpriced_count": 0,
@@ -359,7 +372,19 @@
       "cash_est": null
     }
   ],
-  "entry_signals": [],
+  "entry_signals": [
+    {
+      "slot": 1,
+      "ticker": "IVZINGOLD.NS",
+      "display_ticker": "IVZINGOLD",
+      "price": 121.19999694824219,
+      "pct_dist": -0.6760928448895986,
+      "rank": 1,
+      "qty": 88,
+      "amount": 10665.599731445312,
+      "date": "2026-11-11"
+    }
+  ],
   "rules": {
     "dma_window": 10,
     "n_slots": 2,
@@ -387,7 +412,7 @@
     "late_hold_ema_slow": 8,
     "close_rules_from": "14:30"
   },
-  "last_scan": "2026-11-11T09:15:29",
+  "last_scan": "2026-11-11T09:30:45",
   "telegram_configured": true,
-  "server_time": "2026-11-11T09:15:29"
+  "server_time": "2026-11-11T09:30:45"
 }

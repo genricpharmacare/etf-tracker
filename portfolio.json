@@ -317,15 +317,40 @@
       "created_at": "2026-11-10T04:30:31",
       "seen": false,
       "telegram_ok": true
+    },
+    {
+      "id": 21,
+      "position_id": -2,
+      "ticker": "IVZINGOLD.NS",
+      "key": "2026-11-11|1|IVZINGOLD.NS",
+      "reason": "buy_signal",
+      "price": 121.19999694824219,
+      "pnl_pct": null,
+      "detail": "Slot 1: Rank #1 (-0.68% vs 10DMA). Suggested qty 88 (~₹10,666)",
+      "created_at": "2026-11-11T09:30:45",
+      "seen": false,
+      "telegram_ok": true
     }
   ],
   "meta": {
-    "last_scan": "2026-11-11T09:15:29",
+    "last_scan": "2026-11-11T09:30:45",
     "entry_signals": {
       "date": "2026-11-11",
-      "signals": []
+      "signals": [
+        {
+          "slot": 1,
+          "ticker": "IVZINGOLD.NS",
+          "display_ticker": "IVZINGOLD",
+          "price": 121.19999694824219,
+          "pct_dist": -0.6760928448895986,
+          "rank": 1,
+          "qty": 88,
+          "amount": 10665.599731445312,
+          "date": "2026-11-11"
+        }
+      ]
     }
   },
   "next_position_id": 5,
-  "next_alert_id": 21
+  "next_alert_id": 22
 }
