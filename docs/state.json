@@ -9,19 +9,19 @@
       "qty": 532.0,
       "avg_price": 18.79,
       "note": "buy signal",
-      "cmp": 18.610000610351562,
+      "cmp": 18.530000686645508,
       "price_source": "live",
       "price_error": null,
-      "price_date": "2026-11-09",
-      "dma": 18.625000381469725,
-      "pct_dist": -0.0805356822064075,
-      "ema_fast": 18.561680316026195,
-      "ema_slow": 20.692824924822187,
+      "price_date": "2026-11-11",
+      "dma": 18.558000373840333,
+      "pct_dist": -0.15087663881230307,
+      "ema_fast": 18.551120439565967,
+      "ema_slow": 20.587321303447712,
       "invested": 9996.279999999999,
-      "value": 9900.520324707031,
-      "pnl": -95.75967529296759,
-      "pnl_pct": -0.9579531114871562,
-      "days_held": 5,
+      "value": 9857.96036529541,
+      "pnl": -138.31963470458868,
+      "pnl_pct": -1.3837110875704701,
+      "days_held": 6,
       "days_left": 0,
       "tp_price": 19.1658,
       "sl_price": 18.0384,
@@ -30,9 +30,9 @@
       "trailing": false,
       "trail_stop": null,
       "trail_since": null,
-      "exit_reason": "max_holding_period",
-      "exit_label": "Held 5 days",
-      "exit_detail": "held 5 days, limit is 5"
+      "exit_reason": null,
+      "exit_label": null,
+      "exit_detail": null
     }
   ],
   "closed_positions": [
@@ -335,13 +335,13 @@
   "summary": {
     "invested": 9996.279999999999,
     "priced_invested": 9996.279999999999,
-    "value": 9900.520324707031,
-    "pnl": -95.75967529296759,
-    "pnl_pct": -0.9579531114871491,
+    "value": 9857.96036529541,
+    "pnl": -138.31963470458868,
+    "pnl_pct": -1.3837110875704632,
     "open_count": 1,
     "priced_count": 1,
     "unpriced_count": 0,
-    "action_count": 1
+    "action_count": 0
   },
   "slots": [
     {
@@ -353,7 +353,7 @@
     },
     {
       "id": 2,
-      "status": "pending_sell",
+      "status": "invested",
       "ticker": "SILVERCASE",
       "position_id": 4,
       "cash_est": null
@@ -387,7 +387,7 @@
     "late_hold_ema_slow": 8,
     "close_rules_from": "14:30"
   },
-  "last_scan": "2026-11-10T04:30:31",
+  "last_scan": "2026-11-11T03:45:29",
   "telegram_configured": true,
-  "server_time": "2026-11-10T04:30:31"
+  "server_time": "2026-11-11T03:45:29"
 }
