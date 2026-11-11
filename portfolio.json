@@ -330,27 +330,40 @@
       "created_at": "2026-11-11T09:30:45",
       "seen": false,
       "telegram_ok": true
+    },
+    {
+      "id": 22,
+      "position_id": -2,
+      "ticker": "HDFCNIFIT.NS",
+      "key": "2026-11-11|1|HDFCNIFIT.NS",
+      "reason": "buy_signal",
+      "price": 34.33000183105469,
+      "pnl_pct": null,
+      "detail": "Slot 1: Rank #1 (-0.70% vs 10DMA). Suggested qty 311 (~₹10,677)",
+      "created_at": "2026-11-11T09:45:45",
+      "seen": false,
+      "telegram_ok": true
     }
   ],
   "meta": {
-    "last_scan": "2026-11-11T09:30:45",
+    "last_scan": "2026-11-11T09:45:45",
     "entry_signals": {
       "date": "2026-11-11",
       "signals": [
         {
           "slot": 1,
-          "ticker": "IVZINGOLD.NS",
-          "display_ticker": "IVZINGOLD",
-          "price": 121.19999694824219,
-          "pct_dist": -0.6760928448895986,
+          "ticker": "HDFCNIFIT.NS",
+          "display_ticker": "HDFCNIFIT",
+          "price": 34.33000183105469,
+          "pct_dist": -0.6999834842102117,
           "rank": 1,
-          "qty": 88,
-          "amount": 10665.599731445312,
+          "qty": 311,
+          "amount": 10676.630569458008,
           "date": "2026-11-11"
         }
       ]
     }
   },
   "next_position_id": 5,
-  "next_alert_id": 22
+  "next_alert_id": 23
 }
