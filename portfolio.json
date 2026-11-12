@@ -346,22 +346,10 @@
     }
   ],
   "meta": {
-    "last_scan": "2026-11-11T10:00:40",
+    "last_scan": "2026-11-12T03:45:32",
     "entry_signals": {
-      "date": "2026-11-11",
-      "signals": [
-        {
-          "slot": 1,
-          "ticker": "HDFCNIFIT.NS",
-          "display_ticker": "HDFCNIFIT",
-          "price": 34.33000183105469,
-          "pct_dist": -0.6999834842102117,
-          "rank": 1,
-          "qty": 311,
-          "amount": 10676.630569458008,
-          "date": "2026-11-11"
-        }
-      ]
+      "date": "2026-11-12",
+      "signals": []
     }
   },
   "next_position_id": 5,
