@@ -359,7 +359,7 @@
     }
   ],
   "meta": {
-    "last_scan": "2026-11-12T09:30:46",
+    "last_scan": "2026-11-12T09:45:37",
     "entry_signals": {
       "date": "2026-11-12",
       "signals": [
@@ -367,11 +367,11 @@
           "slot": 1,
           "ticker": "IVZINGOLD.NS",
           "display_ticker": "IVZINGOLD",
-          "price": 118.1500015258789,
-          "pct_dist": -2.9329593968912255,
+          "price": 118.4000015258789,
+          "pct_dist": -2.5754941398396247,
           "rank": 1,
           "qty": 90,
-          "amount": 10633.500137329102,
+          "amount": 10656.000137329102,
           "date": "2026-11-12"
         }
       ]
