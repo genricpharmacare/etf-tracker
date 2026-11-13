@@ -381,27 +381,40 @@
       "created_at": "2026-11-13T09:30:47",
       "seen": false,
       "telegram_ok": true
+    },
+    {
+      "id": 26,
+      "position_id": -2,
+      "ticker": "IVZINGOLD.NS",
+      "key": "2026-11-13|1|IVZINGOLD.NS",
+      "reason": "buy_signal",
+      "price": 117.5999984741211,
+      "pnl_pct": null,
+      "detail": "Slot 1: Rank #1 (-2.83% vs 10DMA). Suggested qty 91 (~₹10,702)",
+      "created_at": "2026-11-13T09:45:37",
+      "seen": false,
+      "telegram_ok": true
     }
   ],
   "meta": {
-    "last_scan": "2026-11-13T09:30:47",
+    "last_scan": "2026-11-13T09:45:37",
     "entry_signals": {
       "date": "2026-11-13",
       "signals": [
         {
           "slot": 1,
-          "ticker": "ESILVER.NS",
-          "display_ticker": "ESILVER",
-          "price": 176.47999572753906,
-          "pct_dist": -3.2806129091650913,
+          "ticker": "IVZINGOLD.NS",
+          "display_ticker": "IVZINGOLD",
+          "price": 117.5999984741211,
+          "pct_dist": -2.8299944511717348,
           "rank": 1,
-          "qty": 60,
-          "amount": 10588.799743652344,
+          "qty": 91,
+          "amount": 10701.59986114502,
           "date": "2026-11-13"
         }
       ]
     }
   },
   "next_position_id": 5,
-  "next_alert_id": 26
+  "next_alert_id": 27
 }
