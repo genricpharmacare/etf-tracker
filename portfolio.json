@@ -356,27 +356,27 @@
       "created_at": "2026-11-12T09:30:46",
       "seen": false,
       "telegram_ok": true
+    },
+    {
+      "id": 24,
+      "position_id": 4,
+      "ticker": "SILVERCASE.NS",
+      "reason": "stop_loss",
+      "price": 18.0384,
+      "pnl_pct": -3.9999999999999996,
+      "detail": "low 17.98 <= stop 18.04 (-4%); live price 17.98",
+      "created_at": "2026-11-13T03:45:27",
+      "seen": false,
+      "telegram_ok": true
     }
   ],
   "meta": {
-    "last_scan": "2026-11-12T10:00:50",
+    "last_scan": "2026-11-13T03:45:27",
     "entry_signals": {
-      "date": "2026-11-12",
-      "signals": [
-        {
-          "slot": 1,
-          "ticker": "IVZINGOLD.NS",
-          "display_ticker": "IVZINGOLD",
-          "price": 118.4000015258789,
-          "pct_dist": -2.5754941398396247,
-          "rank": 1,
-          "qty": 90,
-          "amount": 10656.000137329102,
-          "date": "2026-11-12"
-        }
-      ]
+      "date": "2026-11-13",
+      "signals": []
     }
   },
   "next_position_id": 5,
-  "next_alert_id": 24
+  "next_alert_id": 25
 }
