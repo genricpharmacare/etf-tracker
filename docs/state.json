@@ -455,11 +455,11 @@
       "slot": 1,
       "ticker": "HDFCSILVER.NS",
       "display_ticker": "HDFCSILVER",
-      "price": 160.61000061035156,
-      "pct_dist": -6.707792251302699,
+      "price": 160.6199951171875,
+      "pct_dist": -6.702528456109412,
       "rank": 1,
       "qty": 66,
-      "amount": 10600.260040283203,
+      "amount": 10600.919677734375,
       "date": "2026-11-16"
     }
   ],
@@ -490,7 +490,7 @@
     "late_hold_ema_slow": 8,
     "close_rules_from": "14:30"
   },
-  "last_scan": "2026-11-16T09:30:52",
+  "last_scan": "2026-11-16T09:45:37",
   "telegram_configured": true,
-  "server_time": "2026-11-16T09:30:52"
+  "server_time": "2026-11-16T09:45:37"
 }
