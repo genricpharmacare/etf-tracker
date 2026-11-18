@@ -433,27 +433,40 @@
       "created_at": "2026-11-18T09:30:47",
       "seen": false,
       "telegram_ok": true
+    },
+    {
+      "id": 30,
+      "position_id": -2,
+      "ticker": "SILVERADD.NS",
+      "key": "2026-11-18|1|SILVERADD.NS",
+      "reason": "buy_signal",
+      "price": 15.640000343322754,
+      "pnl_pct": null,
+      "detail": "Slot 1: Rank #1 (-8.37% vs 10DMA). Suggested qty 684 (~₹10,698)",
+      "created_at": "2026-11-18T09:45:46",
+      "seen": false,
+      "telegram_ok": true
     }
   ],
   "meta": {
-    "last_scan": "2026-11-18T09:30:47",
+    "last_scan": "2026-11-18T09:45:46",
     "entry_signals": {
       "date": "2026-11-18",
       "signals": [
         {
           "slot": 1,
-          "ticker": "SILVER360.NS",
-          "display_ticker": "SILVER360",
-          "price": 160.36000061035156,
-          "pct_dist": -8.757794157239534,
+          "ticker": "SILVERADD.NS",
+          "display_ticker": "SILVERADD",
+          "price": 15.640000343322754,
+          "pct_dist": -8.371899018465239,
           "rank": 1,
-          "qty": 66,
-          "amount": 10583.760040283203,
+          "qty": 684,
+          "amount": 10697.760234832764,
           "date": "2026-11-18"
         }
       ]
     }
   },
   "next_position_id": 5,
-  "next_alert_id": 30
+  "next_alert_id": 31
 }

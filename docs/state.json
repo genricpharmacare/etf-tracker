@@ -13,10 +13,10 @@
       "price_source": "live",
       "price_error": null,
       "price_date": "2026-11-18",
-      "dma": 18.021000099182128,
-      "pct_dist": -8.495645744619065,
-      "ema_fast": 17.373348714765072,
-      "ema_slow": 20.00119914356534,
+      "dma": 17.952000045776366,
+      "pct_dist": -8.143940903131693,
+      "ema_fast": 17.185565631824176,
+      "ema_slow": 19.852193561027427,
       "invested": 9996.279999999999,
       "value": 8772.679878234863,
       "pnl": -1223.6001217651356,
@@ -71,6 +71,19 @@
     }
   ],
   "alerts": [
+    {
+      "id": 30,
+      "position_id": -2,
+      "display_ticker": "SILVERADD",
+      "reason": "buy_signal",
+      "label": "Buy signal (rank entry)",
+      "price": 15.640000343322754,
+      "pnl_pct": null,
+      "detail": "Slot 1: Rank #1 (-8.37% vs 10DMA). Suggested qty 684 (~₹10,698)",
+      "created_at": "2026-11-18T09:45:46",
+      "seen": false,
+      "telegram_ok": true
+    },
     {
       "id": 29,
       "position_id": -2,
@@ -479,13 +492,13 @@
   "entry_signals": [
     {
       "slot": 1,
-      "ticker": "SILVER360.NS",
-      "display_ticker": "SILVER360",
-      "price": 160.36000061035156,
-      "pct_dist": -8.757794157239534,
+      "ticker": "SILVERADD.NS",
+      "display_ticker": "SILVERADD",
+      "price": 15.640000343322754,
+      "pct_dist": -8.371899018465239,
       "rank": 1,
-      "qty": 66,
-      "amount": 10583.760040283203,
+      "qty": 684,
+      "amount": 10697.760234832764,
       "date": "2026-11-18"
     }
   ],
@@ -516,7 +529,7 @@
     "late_hold_ema_slow": 8,
     "close_rules_from": "14:30"
   },
-  "last_scan": "2026-11-18T09:30:47",
+  "last_scan": "2026-11-18T09:45:46",
   "telegram_configured": true,
-  "server_time": "2026-11-18T09:30:47"
+  "server_time": "2026-11-18T09:45:46"
 }
