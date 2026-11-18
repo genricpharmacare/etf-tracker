@@ -9,18 +9,18 @@
       "qty": 532.0,
       "avg_price": 18.79,
       "note": "buy signal",
-      "cmp": 16.440000534057617,
+      "cmp": 16.489999771118164,
       "price_source": "live",
       "price_error": null,
       "price_date": "2026-11-18",
-      "dma": 18.016000175476073,
-      "pct_dist": -8.747777675778192,
-      "ema_fast": 17.356682302411556,
-      "ema_slow": 19.998760156391654,
+      "dma": 18.021000099182128,
+      "pct_dist": -8.495645744619065,
+      "ema_fast": 17.373348714765072,
+      "ema_slow": 20.00119914356534,
       "invested": 9996.279999999999,
-      "value": 8746.080284118652,
-      "pnl": -1250.1997158813465,
-      "pnl_pct": -12.506649632476755,
+      "value": 8772.679878234863,
+      "pnl": -1223.6001217651356,
+      "pnl_pct": -12.240554704001251,
       "days_held": 13,
       "days_left": 0,
       "tp_price": 19.1658,
@@ -32,7 +32,7 @@
       "trail_since": null,
       "exit_reason": "stop_loss",
       "exit_label": "Stop-loss hit",
-      "exit_detail": "low 16.41 <= stop 18.04 (-4%); live price 16.44"
+      "exit_detail": "low 16.41 <= stop 18.04 (-4%); live price 16.49"
     }
   ],
   "closed_positions": [
@@ -71,6 +71,19 @@
     }
   ],
   "alerts": [
+    {
+      "id": 29,
+      "position_id": -2,
+      "display_ticker": "SILVER360",
+      "reason": "buy_signal",
+      "label": "Buy signal (rank entry)",
+      "price": 160.36000061035156,
+      "pnl_pct": null,
+      "detail": "Slot 1: Rank #1 (-8.76% vs 10DMA). Suggested qty 66 (~₹10,584)",
+      "created_at": "2026-11-18T09:30:47",
+      "seen": false,
+      "telegram_ok": true
+    },
     {
       "id": 28,
       "position_id": -2,
@@ -439,9 +452,9 @@
   "summary": {
     "invested": 9996.279999999999,
     "priced_invested": 9996.279999999999,
-    "value": 8746.080284118652,
-    "pnl": -1250.1997158813465,
-    "pnl_pct": -12.50664963247675,
+    "value": 8772.679878234863,
+    "pnl": -1223.6001217651356,
+    "pnl_pct": -12.240554704001246,
     "open_count": 1,
     "priced_count": 1,
     "unpriced_count": 0,
@@ -463,7 +476,19 @@
       "cash_est": null
     }
   ],
-  "entry_signals": [],
+  "entry_signals": [
+    {
+      "slot": 1,
+      "ticker": "SILVER360.NS",
+      "display_ticker": "SILVER360",
+      "price": 160.36000061035156,
+      "pct_dist": -8.757794157239534,
+      "rank": 1,
+      "qty": 66,
+      "amount": 10583.760040283203,
+      "date": "2026-11-18"
+    }
+  ],
   "rules": {
     "dma_window": 10,
     "n_slots": 2,
@@ -491,7 +516,7 @@
     "late_hold_ema_slow": 8,
     "close_rules_from": "14:30"
   },
-  "last_scan": "2026-11-18T09:15:32",
+  "last_scan": "2026-11-18T09:30:47",
   "telegram_configured": true,
-  "server_time": "2026-11-18T09:15:32"
+  "server_time": "2026-11-18T09:30:47"
 }
