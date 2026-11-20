@@ -9,18 +9,18 @@
       "qty": 532.0,
       "avg_price": 18.79,
       "note": "buy signal",
-      "cmp": 15.4399995803833,
+      "cmp": 15.380000114440918,
       "price_source": "live",
       "price_error": null,
       "price_date": "2026-11-20",
-      "dma": 17.63100004196167,
-      "pct_dist": -12.42697780252851,
-      "ema_fast": 16.59482161285973,
-      "ema_slow": 19.634995874433933,
+      "dma": 17.358999919891357,
+      "pct_dist": -11.40042522370623,
+      "ema_fast": 16.34321435347197,
+      "ema_slow": 19.459451742935105,
       "invested": 9996.279999999999,
-      "value": 8214.079776763916,
-      "pnl": -1782.2002232360828,
-      "pnl_pct": -17.828634484389028,
+      "value": 8182.160060882568,
+      "pnl": -1814.1199391174305,
+      "pnl_pct": -18.147950428733804,
       "days_held": 15,
       "days_left": 0,
       "tp_price": 19.1658,
@@ -32,7 +32,7 @@
       "trail_since": null,
       "exit_reason": "stop_loss",
       "exit_label": "Stop-loss hit",
-      "exit_detail": "low 14.83 <= stop 18.04 (-4%); live price 15.44"
+      "exit_detail": "low 14.83 <= stop 18.04 (-4%); live price 15.38"
     }
   ],
   "closed_positions": [
@@ -71,6 +71,19 @@
     }
   ],
   "alerts": [
+    {
+      "id": 34,
+      "position_id": -2,
+      "display_ticker": "HDFCSILVER",
+      "reason": "buy_signal",
+      "label": "Buy signal (rank entry)",
+      "price": 145.3000030517578,
+      "pnl_pct": null,
+      "detail": "Slot 1: Rank #1 (-11.54% vs 10DMA). Suggested qty 73 (~₹10,607)",
+      "created_at": "2026-11-20T09:45:41",
+      "seen": false,
+      "telegram_ok": true
+    },
     {
       "id": 33,
       "position_id": -2,
@@ -504,9 +517,9 @@
   "summary": {
     "invested": 9996.279999999999,
     "priced_invested": 9996.279999999999,
-    "value": 8214.079776763916,
-    "pnl": -1782.2002232360828,
-    "pnl_pct": -17.82863448438902,
+    "value": 8182.160060882568,
+    "pnl": -1814.1199391174305,
+    "pnl_pct": -18.147950428733793,
     "open_count": 1,
     "priced_count": 1,
     "unpriced_count": 0,
@@ -531,13 +544,13 @@
   "entry_signals": [
     {
       "slot": 1,
-      "ticker": "ESILVER.NS",
-      "display_ticker": "ESILVER",
-      "price": 152.72000122070312,
-      "pct_dist": -12.667050587600947,
+      "ticker": "HDFCSILVER.NS",
+      "display_ticker": "HDFCSILVER",
+      "price": 145.3000030517578,
+      "pct_dist": -11.542136488143543,
       "rank": 1,
-      "qty": 70,
-      "amount": 10690.400085449219,
+      "qty": 73,
+      "amount": 10606.90022277832,
       "date": "2026-11-20"
     }
   ],
@@ -568,7 +581,7 @@
     "late_hold_ema_slow": 8,
     "close_rules_from": "14:30"
   },
-  "last_scan": "2026-11-20T09:30:44",
+  "last_scan": "2026-11-20T09:45:41",
   "telegram_configured": true,
-  "server_time": "2026-11-20T09:30:44"
+  "server_time": "2026-11-20T09:45:41"
 }
