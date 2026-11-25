@@ -9,18 +9,18 @@
       "qty": 532.0,
       "avg_price": 18.79,
       "note": "buy signal",
-      "cmp": 14.710000038146973,
+      "cmp": 14.59000015258789,
       "price_source": "live",
       "price_error": null,
       "price_date": "2026-11-25",
-      "dma": 16.657999992370605,
-      "pct_dist": -11.694080652634293,
-      "ema_fast": 15.582539841223635,
-      "ema_slow": 19.038340924260975,
+      "dma": 16.6460000038147,
+      "pct_dist": -12.351314734805014,
+      "ema_fast": 15.542539879370608,
+      "ema_slow": 19.032487271306874,
       "invested": 9996.279999999999,
-      "value": 7825.720020294189,
-      "pnl": -2170.5599797058094,
-      "pnl_pct": -21.713677285008124,
+      "value": 7761.880081176758,
+      "pnl": -2234.399918823241,
+      "pnl_pct": -22.352314249133094,
       "days_held": 20,
       "days_left": 0,
       "tp_price": 19.1658,
@@ -32,7 +32,7 @@
       "trail_since": null,
       "exit_reason": "stop_loss",
       "exit_label": "Stop-loss hit",
-      "exit_detail": "low 14.56 <= stop 18.04 (-4%); live price 14.71"
+      "exit_detail": "low 14.56 <= stop 18.04 (-4%); live price 14.59"
     }
   ],
   "closed_positions": [
@@ -543,9 +543,9 @@
   "summary": {
     "invested": 9996.279999999999,
     "priced_invested": 9996.279999999999,
-    "value": 7825.720020294189,
-    "pnl": -2170.5599797058094,
-    "pnl_pct": -21.71367728500812,
+    "value": 7761.880081176758,
+    "pnl": -2234.399918823241,
+    "pnl_pct": -22.35231424913309,
     "open_count": 1,
     "priced_count": 1,
     "unpriced_count": 0,
@@ -595,7 +595,7 @@
     "late_hold_ema_slow": 8,
     "close_rules_from": "14:30"
   },
-  "last_scan": "2026-11-25T05:15:44",
+  "last_scan": "2026-11-25T05:30:45",
   "telegram_configured": true,
-  "server_time": "2026-11-25T05:15:44"
+  "server_time": "2026-11-25T05:30:45"
 }
