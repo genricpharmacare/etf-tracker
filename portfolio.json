@@ -540,7 +540,7 @@
     }
   ],
   "meta": {
-    "last_scan": "2026-11-25T09:30:46",
+    "last_scan": "2026-11-25T09:45:42",
     "entry_signals": {
       "date": "2026-11-25",
       "signals": [
@@ -548,11 +548,11 @@
           "slot": 1,
           "ticker": "SILVERADD.NS",
           "display_ticker": "SILVERADD",
-          "price": 13.720000267028809,
-          "pct_dist": -13.252400335139104,
+          "price": 13.739999771118164,
+          "pct_dist": -13.136933175573324,
           "rank": 1,
-          "qty": 780,
-          "amount": 10701.60020828247,
+          "qty": 779,
+          "amount": 10703.45982170105,
           "date": "2026-11-25"
         }
       ]
