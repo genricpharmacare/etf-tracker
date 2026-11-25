@@ -32,7 +32,7 @@
       "trail_since": null,
       "exit_reason": "stop_loss",
       "exit_label": "Stop-loss hit",
-      "exit_detail": "low 14.50 <= stop 18.04 (-4%); live price 14.51"
+      "exit_detail": "low 14.44 <= stop 18.04 (-4%); live price 14.51"
     }
   ],
   "closed_positions": [
@@ -620,7 +620,7 @@
     "late_hold_ema_slow": 8,
     "close_rules_from": "14:30"
   },
-  "last_scan": "2026-11-25T09:45:42",
+  "last_scan": "2026-11-25T10:00:49",
   "telegram_configured": true,
-  "server_time": "2026-11-25T09:45:42"
+  "server_time": "2026-11-25T10:00:49"
 }
