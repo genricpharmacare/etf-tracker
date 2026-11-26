@@ -550,27 +550,40 @@
       "created_at": "2026-11-26T09:30:54",
       "seen": false,
       "telegram_ok": true
+    },
+    {
+      "id": 39,
+      "position_id": -2,
+      "ticker": "SILVERBEES.NS",
+      "key": "2026-11-26|1|SILVERBEES.NS",
+      "reason": "buy_signal",
+      "price": 141.6999969482422,
+      "pnl_pct": null,
+      "detail": "Slot 1: Rank #1 (-8.18% vs 10DMA). Suggested qty 75 (~₹10,627)",
+      "created_at": "2026-11-26T09:45:43",
+      "seen": false,
+      "telegram_ok": true
     }
   ],
   "meta": {
-    "last_scan": "2026-11-26T09:30:54",
+    "last_scan": "2026-11-26T09:45:43",
     "entry_signals": {
       "date": "2026-11-26",
       "signals": [
         {
           "slot": 1,
-          "ticker": "SILVERCASE.NS",
-          "display_ticker": "SILVERCASE",
-          "price": 14.930000305175781,
-          "pct_dist": -10.491604987389627,
+          "ticker": "SILVERBEES.NS",
+          "display_ticker": "SILVERBEES",
+          "price": 141.6999969482422,
+          "pct_dist": -8.184357923296696,
           "rank": 1,
-          "qty": 717,
-          "amount": 10704.810218811035,
+          "qty": 75,
+          "amount": 10627.499771118164,
           "date": "2026-11-26"
         }
       ]
     }
   },
   "next_position_id": 5,
-  "next_alert_id": 39
+  "next_alert_id": 40
 }
