@@ -566,22 +566,10 @@
     }
   ],
   "meta": {
-    "last_scan": "2026-11-26T10:00:44",
+    "last_scan": "2026-11-27T03:45:26",
     "entry_signals": {
-      "date": "2026-11-26",
-      "signals": [
-        {
-          "slot": 1,
-          "ticker": "SILVERBEES.NS",
-          "display_ticker": "SILVERBEES",
-          "price": 141.6999969482422,
-          "pct_dist": -8.184357923296696,
-          "rank": 1,
-          "qty": 75,
-          "amount": 10627.499771118164,
-          "date": "2026-11-26"
-        }
-      ]
+      "date": "2026-11-27",
+      "signals": []
     }
   },
   "next_position_id": 5,
