@@ -579,7 +579,7 @@
     }
   ],
   "meta": {
-    "last_scan": "2026-11-27T09:30:50",
+    "last_scan": "2026-11-27T09:45:44",
     "entry_signals": {
       "date": "2026-11-27",
       "signals": [
@@ -587,11 +587,11 @@
           "slot": 1,
           "ticker": "SILVER.NS",
           "display_ticker": "SILVER",
-          "price": 153.92999267578125,
-          "pct_dist": -4.9697522620910215,
+          "price": 154.0,
+          "pct_dist": -3.0647884467984783,
           "rank": 1,
           "qty": 69,
-          "amount": 10621.169494628906,
+          "amount": 10626.0,
           "date": "2026-11-27"
         }
       ]
