@@ -9,18 +9,18 @@
       "qty": 532.0,
       "avg_price": 18.79,
       "note": "buy signal",
-      "cmp": 15.539999961853027,
+      "cmp": 15.550000190734863,
       "price_source": "live",
       "price_error": null,
       "price_date": "2026-11-27",
-      "dma": 16.322999954223633,
-      "pct_dist": -4.796912299004212,
-      "ema_fast": 15.517248660119957,
-      "ema_slow": 18.855734646165356,
+      "dma": 16.323999977111818,
+      "pct_dist": -4.741483628168304,
+      "ema_fast": 15.520582069747237,
+      "ema_slow": 18.856222462208372,
       "invested": 9996.279999999999,
-      "value": 8267.27997970581,
-      "pnl": -1729.0000202941883,
-      "pnl_pct": -17.296434476567175,
+      "value": 8272.600101470947,
+      "pnl": -1723.6798985290516,
+      "pnl_pct": -17.243213460697902,
       "days_held": 22,
       "days_left": 0,
       "tp_price": 19.1658,
@@ -32,7 +32,7 @@
       "trail_since": null,
       "exit_reason": "stop_loss",
       "exit_label": "Stop-loss hit",
-      "exit_detail": "low 15.21 <= stop 18.04 (-4%); live price 15.54"
+      "exit_detail": "low 15.21 <= stop 18.04 (-4%); live price 15.55"
     }
   ],
   "closed_positions": [
@@ -71,6 +71,19 @@
     }
   ],
   "alerts": [
+    {
+      "id": 40,
+      "position_id": -2,
+      "display_ticker": "SILVER",
+      "reason": "buy_signal",
+      "label": "Buy signal (rank entry)",
+      "price": 153.92999267578125,
+      "pnl_pct": null,
+      "detail": "Slot 1: Rank #1 (-4.97% vs 10DMA). Suggested qty 69 (~₹10,621)",
+      "created_at": "2026-11-27T09:30:50",
+      "seen": false,
+      "telegram_ok": true
+    },
     {
       "id": 39,
       "position_id": -2,
@@ -582,9 +595,9 @@
   "summary": {
     "invested": 9996.279999999999,
     "priced_invested": 9996.279999999999,
-    "value": 8267.27997970581,
-    "pnl": -1729.0000202941883,
-    "pnl_pct": -17.296434476567168,
+    "value": 8272.600101470947,
+    "pnl": -1723.6798985290516,
+    "pnl_pct": -17.2432134606979,
     "open_count": 1,
     "priced_count": 1,
     "unpriced_count": 0,
@@ -606,7 +619,19 @@
       "cash_est": null
     }
   ],
-  "entry_signals": [],
+  "entry_signals": [
+    {
+      "slot": 1,
+      "ticker": "SILVER.NS",
+      "display_ticker": "SILVER",
+      "price": 153.92999267578125,
+      "pct_dist": -4.9697522620910215,
+      "rank": 1,
+      "qty": 69,
+      "amount": 10621.169494628906,
+      "date": "2026-11-27"
+    }
+  ],
   "rules": {
     "dma_window": 10,
     "n_slots": 2,
@@ -634,7 +659,7 @@
     "late_hold_ema_slow": 8,
     "close_rules_from": "14:30"
   },
-  "last_scan": "2026-11-27T09:15:35",
+  "last_scan": "2026-11-27T09:30:50",
   "telegram_configured": true,
-  "server_time": "2026-11-27T09:15:35"
+  "server_time": "2026-11-27T09:30:50"
 }

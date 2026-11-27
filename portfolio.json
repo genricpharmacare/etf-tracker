@@ -563,15 +563,40 @@
       "created_at": "2026-11-26T09:45:43",
       "seen": false,
       "telegram_ok": true
+    },
+    {
+      "id": 40,
+      "position_id": -2,
+      "ticker": "SILVER.NS",
+      "key": "2026-11-27|1|SILVER.NS",
+      "reason": "buy_signal",
+      "price": 153.92999267578125,
+      "pnl_pct": null,
+      "detail": "Slot 1: Rank #1 (-4.97% vs 10DMA). Suggested qty 69 (~₹10,621)",
+      "created_at": "2026-11-27T09:30:50",
+      "seen": false,
+      "telegram_ok": true
     }
   ],
   "meta": {
-    "last_scan": "2026-11-27T09:15:35",
+    "last_scan": "2026-11-27T09:30:50",
     "entry_signals": {
       "date": "2026-11-27",
-      "signals": []
+      "signals": [
+        {
+          "slot": 1,
+          "ticker": "SILVER.NS",
+          "display_ticker": "SILVER",
+          "price": 153.92999267578125,
+          "pct_dist": -4.9697522620910215,
+          "rank": 1,
+          "qty": 69,
+          "amount": 10621.169494628906,
+          "date": "2026-11-27"
+        }
+      ]
     }
   },
   "next_position_id": 5,
-  "next_alert_id": 40
+  "next_alert_id": 41
 }
